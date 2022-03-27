@@ -38,7 +38,7 @@ import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity  {
 
     private static final String APPLICATION_NAME = "myyoutube";
     private final String TAG = "MyYoutube";
@@ -144,14 +144,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         searchView.setIconifiedByDefault(false);
 
         return true;
-    }
-
-    @Override
-    public void onClick(View view) {
-            switch (view.getId()) {
-                default:
-                    break;
-            }
     }
 
     /**
