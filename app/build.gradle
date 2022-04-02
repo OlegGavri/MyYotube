@@ -2,6 +2,7 @@ plugins {
     id 'com.android.application'
 }
 
+
 android {
     compileSdk 31
 
@@ -44,6 +45,8 @@ dependencies {
         exclude group: 'org.apache.httpcomponents'
     }
     implementation 'androidx.cardview:cardview:1.0.0'
+    implementation 'com.github.yausername.youtubedl-android:library:0.13.+'
+
 
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
