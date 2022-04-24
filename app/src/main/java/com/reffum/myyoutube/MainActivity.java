@@ -5,16 +5,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.View;
-import android.webkit.WebResourceRequest;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
+import android.widget.MediaController;
 import android.widget.SearchView;
+import android.widget.Toast;
+import android.widget.VideoView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -31,14 +32,25 @@ import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
 import com.google.api.services.youtube.model.SearchResultSnippet;
 import com.google.api.services.youtube.model.ThumbnailDetails;
+import com.yausername.youtubedl_android.YoutubeDL;
+import com.yausername.youtubedl_android.YoutubeDLException;
+import com.yausername.youtubedl_android.YoutubeDLRequest;
+import com.yausername.youtubedl_android.mapper.VideoInfo;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.Observable;
+import io.reactivex.schedulers.Schedulers;
+
 public class MainActivity extends AppCompatActivity  {
+    //TODO: Add progress bar for search and video load
 
     private static final String APPLICATION_NAME = "myyoutube";
     private final String TAG = "MyYoutube";
@@ -47,6 +59,9 @@ public class MainActivity extends AppCompatActivity  {
     YouTube mYouTube;
 
     private SearchRecycleViewAdapter searchRecycleViewAdapter;
+
+    private VideoView videoView;
+    private MediaController mediaController;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -64,20 +79,13 @@ public class MainActivity extends AppCompatActivity  {
             e.printStackTrace();
         }
 
-        // In webView open new link in it.
-        WebView webView = (WebView) findViewById(R.id.web_view);
-        webView.setWebViewClient(new WebViewClient(){
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                view.loadUrl(request.getUrl().toString());
-                return false;
-            }
-        });
-
         searchRecycleViewAdapter = new SearchRecycleViewAdapter();
         RecyclerView video_list_recycle_view = findViewById(R.id.video_list_recycler_view);
         video_list_recycle_view.setLayoutManager(new LinearLayoutManager(this));
         video_list_recycle_view.setAdapter(searchRecycleViewAdapter);
+
+        initViews();
+        initListeners();
     }
 
     @Override
@@ -146,39 +154,58 @@ public class MainActivity extends AppCompatActivity  {
         return true;
     }
 
+    private void initViews() {
+        videoView = findViewById(R.id.video_view);
+
+        mediaController = new MediaController(this);
+        mediaController.setAnchorView(videoView);
+        videoView.setMediaController(mediaController);
+    }
+
+    private void initListeners() {
+        videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mp) {
+                mediaController.setAnchorView(videoView);
+                videoView.start();
+            }
+        });
+    }
+
     /**
      * Load youtube video in WebView
      * @param videoId
      */
     public void loadVideo(String videoId) {
         // Play youtube video
+        String url = "http://www.youtube.com/watch?v=" + videoId;
 
-        // HTML page for WebView that play youtube iframe
-        String frameVideo =
-                "<html>" +
-                "    <meta charset=\"utf-8\">\n" +
-                "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">" +
-                "<style>" +
-                "* {" +
-                "padding: 0;" +
-                "margin: 0;" +
-                "</style>" +
-                "<body>" +
-                "<iframe src=\"https://www.youtube.com/embed/" + videoId + "\" frameborder=\"0\" allowfullscreen " +
-                "width=\"100%\" height=\"100%\">" +
-                "</iframe>" +
-                "</body>" +
-                "</html>";
+        Disposable disposable = Observable.fromCallable(() -> {
+            YoutubeDLRequest request = new YoutubeDLRequest(url);
+            request.addOption("-f", "best");
+            return YoutubeDL.getInstance().getInfo(request);
+        })
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(streamInfo -> {
+                    String videoUrl = streamInfo.getUrl();
+                    if(videoUrl.isEmpty()) {
+                        Toast.makeText(getApplicationContext(), "failed to get stream url",
+                                Toast.LENGTH_SHORT).show();
+                    } else {
+                        setupVideoView(videoUrl);
+                    }
+                }, e -> {
+                    if(BuildConfig.DEBUG)
+                        Log.d(TAG, "failed to get stream url", e);
+                    Toast.makeText(getApplicationContext(), "streaming failed.",
+                            Toast.LENGTH_SHORT).show();
+                });
 
-        WebView webView = (WebView) findViewById(R.id.web_view);
-        WebSettings webSettings = webView.getSettings();
-        webSettings.setJavaScriptEnabled(true);
-        webSettings.setLoadWithOverviewMode(true);
-        webSettings.setUseWideViewPort(true);
-        webView.loadData(frameVideo, "text/html", "utf-8");
+    }
 
-        Log.d(TAG, "WIDTH: " + webView.getWidth());
-        Log.d(TAG, "HEIGHT: " + webView.getHeight());
+    private void setupVideoView(String videoUrl) {
+        videoView.setVideoURI(Uri.parse(videoUrl));
     }
 
     public YouTube getService() throws GeneralSecurityException, IOException {
