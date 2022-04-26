@@ -12,7 +12,9 @@ import android.os.Environment;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.View;
 import android.widget.MediaController;
+import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.Toast;
 import android.widget.VideoView;
@@ -50,7 +52,6 @@ import io.reactivex.Observable;
 import io.reactivex.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity  {
-    //TODO: Add progress bar for search and video load
 
     private static final String APPLICATION_NAME = "myyoutube";
     private final String TAG = "MyYoutube";
@@ -60,8 +61,10 @@ public class MainActivity extends AppCompatActivity  {
 
     private SearchRecycleViewAdapter searchRecycleViewAdapter;
 
+    // Activity views
     private VideoView videoView;
     private MediaController mediaController;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -96,6 +99,7 @@ public class MainActivity extends AppCompatActivity  {
         if(Intent.ACTION_SEARCH.equals(intent.getAction())){
             String querry = intent.getStringExtra(SearchManager.QUERY);
 
+            progressBar.setVisibility(View.VISIBLE);
             new Thread(() -> {
                 try {
                     YouTube.Search.List request = mYouTube.search().list(Arrays.asList("id,snippet"));
@@ -129,9 +133,12 @@ public class MainActivity extends AppCompatActivity  {
                     runOnUiThread( () -> {
                        searchRecycleViewAdapter.setVideoList(videoList);
                     });
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                     e.printStackTrace();
+                } finally {
+                    runOnUiThread( () -> {
+                        progressBar.setVisibility(View.GONE);
+                    });
                 }
             }).start();
         }
@@ -160,6 +167,8 @@ public class MainActivity extends AppCompatActivity  {
         mediaController = new MediaController(this);
         mediaController.setAnchorView(videoView);
         videoView.setMediaController(mediaController);
+
+        progressBar = findViewById(R.id.progress_bar);
     }
 
     private void initListeners() {
@@ -180,6 +189,7 @@ public class MainActivity extends AppCompatActivity  {
         // Play youtube video
         String url = "http://www.youtube.com/watch?v=" + videoId;
 
+        progressBar.setVisibility(View.VISIBLE);
         Disposable disposable = Observable.fromCallable(() -> {
             YoutubeDLRequest request = new YoutubeDLRequest(url);
             request.addOption("-f", "best");
@@ -188,6 +198,7 @@ public class MainActivity extends AppCompatActivity  {
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(streamInfo -> {
+                    progressBar.setVisibility(View.GONE);
                     String videoUrl = streamInfo.getUrl();
                     if(videoUrl.isEmpty()) {
                         Toast.makeText(getApplicationContext(), "failed to get stream url",
@@ -196,6 +207,7 @@ public class MainActivity extends AppCompatActivity  {
                         setupVideoView(videoUrl);
                     }
                 }, e -> {
+                    progressBar.setVisibility(View.GONE);
                     if(BuildConfig.DEBUG)
                         Log.d(TAG, "failed to get stream url", e);
                     Toast.makeText(getApplicationContext(), "streaming failed.",
