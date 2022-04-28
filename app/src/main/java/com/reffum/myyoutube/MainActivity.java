@@ -12,6 +12,9 @@ import android.os.Environment;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MotionEvent;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.View;
 import android.widget.MediaController;
 import android.widget.ProgressBar;
@@ -62,9 +65,11 @@ public class MainActivity extends AppCompatActivity  {
     private SearchRecycleViewAdapter searchRecycleViewAdapter;
 
     // Activity views
-    private VideoView videoView;
-    private MediaController mediaController;
+    private SurfaceView surfaceView;
+    private SurfaceHolder surfaceHolder;
     private ProgressBar progressBar;
+    private MediaController mediaController;
+    private MediaPlayer mediaPlayer;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -161,24 +166,32 @@ public class MainActivity extends AppCompatActivity  {
         return true;
     }
 
-    private void initViews() {
-        videoView = findViewById(R.id.video_view);
+    @Override
+    protected void onDestroy() {
+        if(mediaPlayer != null) {
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
+        super.onDestroy();
+    }
 
-        mediaController = new MediaController(this);
-        mediaController.setAnchorView(videoView);
-        videoView.setMediaController(mediaController);
+    private void initViews() {
+        surfaceView = findViewById(R.id.surface_view);
+        surfaceHolder = surfaceView.getHolder();
 
         progressBar = findViewById(R.id.progress_bar);
+
+        mediaController = new MediaController(this);
+        mediaController.setAnchorView(surfaceView);
     }
 
     private void initListeners() {
-        videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-            @Override
-            public void onPrepared(MediaPlayer mp) {
-                mediaController.setAnchorView(videoView);
-                videoView.start();
-            }
-        });
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        mediaController.show();
+        return false;
     }
 
     /**
@@ -216,8 +229,100 @@ public class MainActivity extends AppCompatActivity  {
 
     }
 
-    private void setupVideoView(String videoUrl) {
-        videoView.setVideoURI(Uri.parse(videoUrl));
+    private void setupVideoView(String videoUrl) throws IOException {
+        mediaPlayer = new MediaPlayer();
+        mediaPlayer.setSurface(surfaceHolder.getSurface());
+        mediaPlayer.setDataSource(videoUrl);
+        mediaPlayer.prepare();
+
+        adjustSurfaceViewSize();
+
+        mediaPlayer.start();
+
+        mediaController.setMediaPlayer(new MediaController.MediaPlayerControl() {
+            @Override
+            public void start() {
+                mediaPlayer.start();
+            }
+
+            @Override
+            public void pause() {
+                mediaPlayer.pause();
+            }
+
+            @Override
+            public int getDuration() {
+                return 0;
+            }
+
+            @Override
+            public int getCurrentPosition() {
+                return 0;
+            }
+
+            @Override
+            public void seekTo(int i) {
+
+            }
+
+            @Override
+            public boolean isPlaying() {
+                return false;
+            }
+
+            @Override
+            public int getBufferPercentage() {
+                return 0;
+            }
+
+            @Override
+            public boolean canPause() {
+                return false;
+            }
+
+            @Override
+            public boolean canSeekBackward() {
+                return false;
+            }
+
+            @Override
+            public boolean canSeekForward() {
+                return false;
+            }
+
+            @Override
+            public int getAudioSessionId() {
+                return 0;
+            }
+        });
+
+        mediaController.show();
+    }
+
+    void adjustSurfaceViewSize() {
+        int width = surfaceView.getWidth();
+        int height = surfaceView.getHeight();
+        float boxWidth = width;
+        float boxHeight = height;
+
+        float videoWidth = mediaPlayer.getVideoWidth();
+        float videoHeight = mediaPlayer.getVideoHeight();
+
+        Log.i(TAG, String.format("startVideoPlayback @ %d - video %dx%d - box %dx%d", 0, (int) videoWidth, (int) videoHeight, width, height));
+
+        float wr = boxWidth / videoWidth;
+        float hr = boxHeight / videoHeight;
+        float ar = videoWidth / videoHeight;
+
+        if (wr > hr)
+            width = (int) (boxHeight * ar);
+        else
+            height = (int) (boxWidth / ar);
+
+        Log.i(TAG, String.format("Scaled to %dx%d", width, height));
+
+        surfaceHolder.setFixedSize(width, height);
+        mediaPlayer.seekTo(0);
     }
 
     public YouTube getService() throws GeneralSecurityException, IOException {
