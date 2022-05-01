@@ -23,7 +23,7 @@ class App : Application() {
     }
 
     @Throws(YoutubeDLException::class)
-    private suspend fun initLibraries(){
+    private fun initLibraries(){
         YoutubeDL.getInstance().init(this)
     }
 
