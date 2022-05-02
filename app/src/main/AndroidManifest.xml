@@ -16,7 +16,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat"
         android:extractNativeLibs="true">
-        <activity android:name=".MainActivity"
+        <activity android:name=".MyYoutubeActivity"
             android:label="YouTube Player"
             android:launchMode="singleTop">
             <intent-filter>

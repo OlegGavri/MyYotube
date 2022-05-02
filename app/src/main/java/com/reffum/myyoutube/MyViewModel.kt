@@ -8,6 +8,9 @@ import com.google.api.client.http.HttpRequest
 import com.google.api.client.json.gson.GsonFactory
 import com.google.api.services.youtube.YouTube
 import com.google.api.services.youtube.model.SearchListResponse
+import com.yausername.youtubedl_android.YoutubeDL
+import com.yausername.youtubedl_android.YoutubeDLRequest
+import com.yausername.youtubedl_android.mapper.VideoInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.IOException
@@ -59,6 +62,17 @@ class MyViewModel : ViewModel() {
             }
             videoList
         }
+
+    @Throws(IOException::class)
+    suspend fun getYoutubeDirectVideoUrl(url : String) : String {
+        val request : YoutubeDLRequest = YoutubeDLRequest(url)
+        request.addOption("-f", "best")
+        val videoInfo : VideoInfo
+
+        withContext(Dispatchers.IO) {videoInfo = YoutubeDL.getInstance().getInfo(request)}
+
+        return videoInfo.url
+    }
 
 
     @Throws(IOException::class, GeneralSecurityException::class)
