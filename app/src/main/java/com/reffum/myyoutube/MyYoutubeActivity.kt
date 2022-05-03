@@ -5,7 +5,6 @@ import android.app.SearchManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.os.PersistableBundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import android.media.MediaPlayer
@@ -31,7 +30,7 @@ class MyYoutubeActivity : AppCompatActivity(), SearchRecycleViewAdapter.ItemClic
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.main_activity)
+        setContentView(R.layout.my_youtube_activity)
 
         initViews()
     }
