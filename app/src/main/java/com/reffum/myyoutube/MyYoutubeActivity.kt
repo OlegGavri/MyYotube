@@ -119,7 +119,18 @@ class MyYoutubeActivity : AppCompatActivity(), SearchRecycleViewAdapter.ItemClic
         mediaPlayer.setSurface(surfaceHolder.surface)
         mediaPlayer.setDataSource(directUrl)
         mediaPlayer.prepare()
-        //TODO: adjust size of video surface
+
+        // Adjust surfaceView size to video size
+        var videoWidth = mediaPlayer.videoWidth.toFloat()
+        var videoHeight = mediaPlayer.videoHeight.toFloat()
+        var screenWidth = windowManager.defaultDisplay.width
+        Log.d(TAG, "Window width $screenWidth")
+
+        var lp  = surfaceView.layoutParams
+        lp.width = screenWidth
+        lp.height = (videoHeight / videoWidth * screenWidth).toInt()
+
+        surfaceView.layoutParams = lp
         mediaPlayer.start()
     }
 
