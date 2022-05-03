@@ -31,7 +31,9 @@ import java.util.ArrayList
 
 class MyYoutubeActivity : AppCompatActivity(),
     SearchRecycleViewAdapter.ItemClickListener,
-    SurfaceHolder.Callback {
+    SurfaceHolder.Callback,
+    MediaController.MediaPlayerControl {
+
     private val model : MyViewModel by viewModels()
 
     // Activity views
@@ -113,6 +115,58 @@ class MyYoutubeActivity : AppCompatActivity(),
 
     }
 
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        mediaController.show()
+        return false
+    }
+
+    /**
+     * Implementation of MediaController.MediaPlayerControl
+     */
+    override fun start() {
+        mediaPlayer?.start()
+    }
+
+    override fun pause() {
+        mediaPlayer?.pause()
+    }
+
+    override fun getDuration(): Int {
+        return mediaPlayer?.duration ?: 0
+    }
+
+    override fun getCurrentPosition(): Int {
+        return mediaPlayer?.currentPosition ?: 0
+    }
+
+    override fun seekTo(pos: Int) {
+        mediaPlayer?.seekTo(pos)
+    }
+
+    override fun isPlaying(): Boolean {
+        return mediaPlayer?.isPlaying ?: false
+    }
+
+    override fun getBufferPercentage(): Int {
+        return 0
+    }
+
+    override fun canPause(): Boolean {
+        return mediaPlayer != null
+    }
+
+    override fun canSeekBackward(): Boolean {
+        return mediaPlayer != null
+    }
+
+    override fun canSeekForward(): Boolean {
+        return mediaPlayer != null
+    }
+
+    override fun getAudioSessionId(): Int {
+        TODO("Not yet implemented")
+    }
+
     /**
      * Load youtube video by its id and start play it in MediaPlayer
      * @param videoId Youtube video id
@@ -178,6 +232,7 @@ class MyYoutubeActivity : AppCompatActivity(),
         surfaceHolder.addCallback(this)
         progressBar = findViewById<ProgressBar>(R.id.progress_bar)
         mediaController = MediaController(this)
+        mediaController.setMediaPlayer(this)
         mediaController.setAnchorView(surfaceView)
     }
 
