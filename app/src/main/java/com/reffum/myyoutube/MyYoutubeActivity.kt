@@ -29,8 +29,8 @@ class MyYoutubeActivity : AppCompatActivity() {
     private lateinit var mediaPlayer: MediaPlayer
     private val searchRecycleViewAdapter: SearchRecycleViewAdapter = SearchRecycleViewAdapter()
 
-    override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
-        super.onCreate(savedInstanceState, persistentState)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
 
         initViews()
