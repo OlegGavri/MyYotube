@@ -18,7 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.launch
 import java.util.ArrayList
 
-class MyYoutubeActivity : AppCompatActivity() {
+class MyYoutubeActivity : AppCompatActivity(), SearchRecycleViewAdapter.ItemClickListener {
     private val model : MyViewModel by viewModels()
 
     // Activity views
@@ -27,7 +27,7 @@ class MyYoutubeActivity : AppCompatActivity() {
     private lateinit var progressBar: ProgressBar
     private lateinit var mediaController: MediaController
     private lateinit var mediaPlayer: MediaPlayer
-    private val searchRecycleViewAdapter: SearchRecycleViewAdapter = SearchRecycleViewAdapter()
+    private val searchRecycleViewAdapter: SearchRecycleViewAdapter = SearchRecycleViewAdapter(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,6 +54,14 @@ class MyYoutubeActivity : AppCompatActivity() {
         )
         searchView.isIconifiedByDefault = false
         return true
+    }
+
+    /**
+     * Handle click on video list in RecycleView
+     * @param videoId Youtube ID
+     */
+    override fun onVideoItemClick(videoId: String?) {
+        loadVideo(videoId!!)
     }
 
     override fun onNewIntent(intent: Intent?) {

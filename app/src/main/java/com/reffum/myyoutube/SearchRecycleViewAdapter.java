@@ -1,6 +1,5 @@
 package com.reffum.myyoutube;
 
-import android.app.Application;
 import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +13,16 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 
 public class SearchRecycleViewAdapter extends RecyclerView.Adapter {
+
+    interface ItemClickListener {
+        void onVideoItemClick(String videoId);
+    }
+
+    ItemClickListener clickListener;
+
+    public SearchRecycleViewAdapter(ItemClickListener clickListener) {
+        this.clickListener = clickListener;
+    }
 
     ArrayList<VideoData> videoList = new ArrayList<VideoData>();
 
@@ -38,8 +47,7 @@ public class SearchRecycleViewAdapter extends RecyclerView.Adapter {
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    MainActivity mainActivity = (MainActivity) itemView.getContext();
-                    mainActivity.loadVideo(videoId);
+                    clickListener.onVideoItemClick(videoId);
                 }
             });
         }
