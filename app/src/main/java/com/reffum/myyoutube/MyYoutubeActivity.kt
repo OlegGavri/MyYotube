@@ -124,11 +124,11 @@ class MyYoutubeActivity : AppCompatActivity(), SearchRecycleViewAdapter.ItemClic
         var videoWidth = mediaPlayer.videoWidth.toFloat()
         var videoHeight = mediaPlayer.videoHeight.toFloat()
         var screenWidth = windowManager.defaultDisplay.width
-        Log.d(TAG, "Window width $screenWidth")
 
-        var lp  = surfaceView.layoutParams
-        lp.width = screenWidth
-        lp.height = (videoHeight / videoWidth * screenWidth).toInt()
+        var lp  = surfaceView.layoutParams.also {
+            it.width = screenWidth
+            it.height = (videoHeight / videoWidth * screenWidth).toInt()
+        }
 
         surfaceView.layoutParams = lp
         mediaPlayer.start()
