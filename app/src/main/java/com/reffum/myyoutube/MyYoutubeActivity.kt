@@ -17,7 +17,21 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.launch
 import java.util.ArrayList
 
-class MyYoutubeActivity : AppCompatActivity(), SearchRecycleViewAdapter.ItemClickListener {
+//TODO: video controls
+
+//TODO: improve description(size, shows)
+//TODO: background play and controls in notification
+//TODO: Save last video
+//TODO: Save video
+//TODO: save audio
+//TODO: account
+//TODO: Show chat
+//TODO: likes, shared
+//TODO: only audio mode
+
+class MyYoutubeActivity : AppCompatActivity(),
+    SearchRecycleViewAdapter.ItemClickListener,
+    SurfaceHolder.Callback {
     private val model : MyViewModel by viewModels()
 
     // Activity views
@@ -25,7 +39,7 @@ class MyYoutubeActivity : AppCompatActivity(), SearchRecycleViewAdapter.ItemClic
     private lateinit var surfaceHolder: SurfaceHolder
     private lateinit var progressBar: ProgressBar
     private lateinit var mediaController: MediaController
-    private lateinit var mediaPlayer: MediaPlayer
+    private var mediaPlayer: MediaPlayer? = null
     private val searchRecycleViewAdapter: SearchRecycleViewAdapter = SearchRecycleViewAdapter(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,6 +47,8 @@ class MyYoutubeActivity : AppCompatActivity(), SearchRecycleViewAdapter.ItemClic
         setContentView(R.layout.my_youtube_activity)
 
         initViews()
+
+        Log.d(TAG, "onCreate()")
     }
 
     override fun onDestroy() {
@@ -82,6 +98,22 @@ class MyYoutubeActivity : AppCompatActivity(), SearchRecycleViewAdapter.ItemClic
     }
 
     /**
+     * SurfaceHolder.Callback implementation. It is for video SurfaceView
+     */
+    override fun surfaceCreated(holder: SurfaceHolder) {
+        // If MediaPlayer created, set holder for it
+        mediaPlayer?.setSurface(holder.surface)
+    }
+
+    override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
+
+    }
+
+    override fun surfaceDestroyed(holder: SurfaceHolder) {
+
+    }
+
+    /**
      * Load youtube video by its id and start play it in MediaPlayer
      * @param videoId Youtube video id
      */
@@ -116,13 +148,13 @@ class MyYoutubeActivity : AppCompatActivity(), SearchRecycleViewAdapter.ItemClic
         // Create new MediaPlayer. Pass to it url and surface view
         // for video and play.
         mediaPlayer = MediaPlayer()
-        mediaPlayer.setSurface(surfaceHolder.surface)
-        mediaPlayer.setDataSource(directUrl)
-        mediaPlayer.prepare()
+        mediaPlayer!!.setSurface(surfaceHolder.surface)
+        mediaPlayer!!.setDataSource(directUrl)
+        mediaPlayer!!.prepare()
 
         // Adjust surfaceView size to video size
-        var videoWidth = mediaPlayer.videoWidth.toFloat()
-        var videoHeight = mediaPlayer.videoHeight.toFloat()
+        var videoWidth = mediaPlayer!!.videoWidth.toFloat()
+        var videoHeight = mediaPlayer!!.videoHeight.toFloat()
         var screenWidth = windowManager.defaultDisplay.width
 
         var lp  = surfaceView.layoutParams.also {
@@ -131,7 +163,7 @@ class MyYoutubeActivity : AppCompatActivity(), SearchRecycleViewAdapter.ItemClic
         }
 
         surfaceView.layoutParams = lp
-        mediaPlayer.start()
+        mediaPlayer!!.start()
     }
 
     private fun initViews() {
@@ -143,6 +175,7 @@ class MyYoutubeActivity : AppCompatActivity(), SearchRecycleViewAdapter.ItemClic
 
         surfaceView = findViewById<SurfaceView>(R.id.surface_view)
         surfaceHolder = surfaceView.holder
+        surfaceHolder.addCallback(this)
         progressBar = findViewById<ProgressBar>(R.id.progress_bar)
         mediaController = MediaController(this)
         mediaController.setAnchorView(surfaceView)
@@ -153,5 +186,6 @@ class MyYoutubeActivity : AppCompatActivity(), SearchRecycleViewAdapter.ItemClic
         private const val TAG = "MyYoutube"
         private const val API_KEY = "AIzaSyBGMvsvE5t8D8p213pxuNglIQEfO--1wXU"
     }
+
 
 }
