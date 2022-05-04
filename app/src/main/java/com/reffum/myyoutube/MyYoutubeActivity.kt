@@ -42,6 +42,7 @@ class MyYoutubeActivity : AppCompatActivity(),
     private lateinit var surfaceView: SurfaceView
     private lateinit var surfaceHolder: SurfaceHolder
     private lateinit var progressBar: ProgressBar
+    private lateinit var videoListRecycleView : RecyclerView
     private lateinit var mediaController: MediaController
     private var mediaPlayer: MediaPlayer? = null
     private val searchRecycleViewAdapter: SearchRecycleViewAdapter = SearchRecycleViewAdapter(this)
@@ -146,6 +147,7 @@ class MyYoutubeActivity : AppCompatActivity(),
     }
 
     override fun isPlaying(): Boolean {
+        Log.d(TAG, "isPlaying(): ${mediaPlayer?.isPlaying}")
         return mediaPlayer?.isPlaying ?: false
     }
 
@@ -154,6 +156,7 @@ class MyYoutubeActivity : AppCompatActivity(),
     }
 
     override fun canPause(): Boolean {
+        Log.d(TAG, "canPause() return $mediaPlayer")
         return mediaPlayer != null
     }
 
@@ -229,7 +232,7 @@ class MyYoutubeActivity : AppCompatActivity(),
     }
 
     private fun initViews() {
-        val videoListRecycleView = findViewById<RecyclerView>(R.id.video_list_recycler_view)!!
+        videoListRecycleView = findViewById<RecyclerView>(R.id.video_list_recycler_view)!!
             .apply {
                 layoutManager = LinearLayoutManager(this@MyYoutubeActivity)
                 adapter = searchRecycleViewAdapter
