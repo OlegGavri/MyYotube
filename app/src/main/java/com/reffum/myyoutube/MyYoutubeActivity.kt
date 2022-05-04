@@ -20,14 +20,16 @@ import java.util.ArrayList
 //TODO: video controls
 
 //TODO: improve description(size, shows)
+//TODO: Restore last video
 //TODO: background play and controls in notification
-//TODO: Save last video
-//TODO: Save video
+//TODO: Save video and it position
 //TODO: save audio
 //TODO: account
 //TODO: Show chat
 //TODO: likes, shared
 //TODO: only audio mode
+
+//TODO: fail if videoID referenced to unaviable stream
 
 class MyYoutubeActivity : AppCompatActivity(),
     SearchRecycleViewAdapter.ItemClickListener,
@@ -201,7 +203,13 @@ class MyYoutubeActivity : AppCompatActivity(),
     private fun setupVideoView(directUrl: String) {
         // Create new MediaPlayer. Pass to it url and surface view
         // for video and play.
-        mediaPlayer = MediaPlayer()
+
+        // If MediaPlayer already play video, reset it
+        if(mediaPlayer == null)
+            mediaPlayer = MediaPlayer()
+        else
+            mediaPlayer?.reset()
+
         mediaPlayer!!.setSurface(surfaceHolder.surface)
         mediaPlayer!!.setDataSource(directUrl)
         mediaPlayer!!.prepare()
