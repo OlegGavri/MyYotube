@@ -17,8 +17,6 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.launch
 import java.util.ArrayList
 
-//TODO: video controls
-
 //TODO: improve description(size, shows)
 //TODO: Restore last video
 //TODO: background play and controls in notification
@@ -28,8 +26,11 @@ import java.util.ArrayList
 //TODO: Show chat
 //TODO: likes, shared
 //TODO: only audio mode
+//TODO: Starting screen
 
 //TODO: fail if videoID referenced to unaviable stream
+//TODO: video controls
+
 
 class MyYoutubeActivity : AppCompatActivity(),
     SearchRecycleViewAdapter.ItemClickListener,
