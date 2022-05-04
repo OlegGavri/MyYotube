@@ -45,7 +45,7 @@ class MyViewModel : ViewModel() {
                 val videoId : String = id.videoId
                 val title : String = snippet.title
                 val description : String = snippet.description
-                val imageUrl : String = thumbnails.default.url
+                val imageUrl : String = thumbnails.medium.url
 
                 // Load image
                 val url = URL(imageUrl)
