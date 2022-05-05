@@ -52,12 +52,23 @@ public class SearchRecycleViewAdapter extends RecyclerView.Adapter {
         public void setVideoImage(Bitmap image) {
             itemImage.setImageBitmap(image);
         }
+
         public void setVideoTitle(String title) {
             itemTitle.setText(title);
         }
+
         public void setVideoDetail(String detail) {
             itemViews.setText(detail);}
+
         public void setVideoId(String id) {videoId = id;}
+
+        public void setVideoViews(String views) {
+            itemViews.setText(views);
+        }
+
+        public void setVideoDate(String date) {
+            itemDate.setText(date);
+        }
     }
 
     @NonNull
@@ -74,6 +85,8 @@ public class SearchRecycleViewAdapter extends RecyclerView.Adapter {
         viewHolder.setVideoImage(videoList.get(position).getImage());
         viewHolder.setVideoTitle(videoList.get(position).getTitle());
         viewHolder.setVideoId(videoList.get(position).getId());
+        viewHolder.setVideoViews(videoList.get(position).getViews());
+        viewHolder.setVideoDate(videoList.get(position).getDate());
     }
 
     @Override

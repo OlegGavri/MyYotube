@@ -8,10 +8,12 @@ class VideoData(
 //Video title
         val title: String,
 
-        // Detail description
-        val detail: String,
+        // Number of views
+        val views: String,
 
-        // Yotube video ID
+        val date : String,
+
+        // YouTube video ID
         val id: String,
 
         // image, icon

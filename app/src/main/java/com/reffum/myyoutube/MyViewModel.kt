@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport
 import com.google.api.client.http.HttpRequest
 import com.google.api.client.json.gson.GsonFactory
+import com.google.api.client.util.DateTime
 import com.google.api.services.youtube.YouTube
 import com.google.api.services.youtube.model.SearchListResponse
 import com.yausername.youtubedl_android.YoutubeDL
@@ -44,7 +45,7 @@ class MyViewModel : ViewModel() {
 
                 val videoId : String = id.videoId
                 val title : String = snippet.title
-                val description : String = snippet.description
+                val date : DateTime = snippet.publishedAt
                 val imageUrl : String = thumbnails.medium.url
 
                 // Load image
@@ -54,7 +55,8 @@ class MyViewModel : ViewModel() {
 
                 val videoData = VideoData(
                     title,
-                    description,
+                    "Unknown",
+                    date.toString(),
                     videoId,
                     bitmap )
 
