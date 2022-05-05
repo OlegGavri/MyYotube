@@ -33,7 +33,7 @@ import java.util.ArrayList
 //TODO: video controls
 
 
-class MyYoutubeActivity : AppCompatActivity(),
+class MainActivity : AppCompatActivity(),
     SearchRecycleViewAdapter.ItemClickListener,
     SurfaceHolder.Callback,
     MediaController.MediaPlayerControl {
@@ -51,7 +51,7 @@ class MyYoutubeActivity : AppCompatActivity(),
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.my_youtube_activity)
+        setContentView(R.layout.main_activity)
 
         initViews()
 
@@ -236,7 +236,7 @@ class MyYoutubeActivity : AppCompatActivity(),
     private fun initViews() {
         videoListRecycleView = findViewById<RecyclerView>(R.id.video_list_recycler_view)!!
             .apply {
-                layoutManager = LinearLayoutManager(this@MyYoutubeActivity)
+                layoutManager = LinearLayoutManager(this@MainActivity)
                 adapter = searchRecycleViewAdapter
             }
 

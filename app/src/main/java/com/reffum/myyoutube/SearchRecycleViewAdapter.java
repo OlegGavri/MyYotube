@@ -33,7 +33,8 @@ public class SearchRecycleViewAdapter extends RecyclerView.Adapter {
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         TextView itemTitle;
-        TextView itemDetail;
+        TextView itemViews;
+        TextView itemDate;
         ImageView itemImage;
 
         String videoId;
@@ -42,14 +43,10 @@ public class SearchRecycleViewAdapter extends RecyclerView.Adapter {
             super(itemView);
 
             itemTitle = itemView.findViewById(R.id.item_title);
-            itemDetail = itemView.findViewById(R.id.item_detail);
+            itemViews = itemView.findViewById(R.id.item_views);
             itemImage = itemView.findViewById(R.id.item_image);
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    clickListener.onVideoItemClick(videoId);
-                }
-            });
+            itemDate = itemView.findViewById(R.id.item_date);
+            itemView.setOnClickListener(view -> clickListener.onVideoItemClick(videoId));
         }
 
         public void setVideoImage(Bitmap image) {
@@ -58,7 +55,8 @@ public class SearchRecycleViewAdapter extends RecyclerView.Adapter {
         public void setVideoTitle(String title) {
             itemTitle.setText(title);
         }
-        public void setVideoDetail(String detail) {itemDetail.setText(detail);}
+        public void setVideoDetail(String detail) {
+            itemViews.setText(detail);}
         public void setVideoId(String id) {videoId = id;}
     }
 
