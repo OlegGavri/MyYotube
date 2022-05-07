@@ -1,4 +1,4 @@
-package com.reffum.myyoutube;
+package com.reffum.myyoutube.view;
 
 import android.graphics.Bitmap;
 import android.view.LayoutInflater;
@@ -9,6 +9,9 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.reffum.myyoutube.R;
+import com.reffum.myyoutube.VideoData;
 
 import java.util.ArrayList;
 
