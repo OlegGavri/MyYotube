@@ -1,5 +1,6 @@
 package com.reffum.myyoutube
 
+import android.media.AudioAttributes
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.os.Bundle
@@ -108,7 +109,19 @@ class MediaPlaybackService : MediaBrowserServiceCompat(),
     private fun initMediaPlayer() {
         mediaPlayer = MediaPlayer().apply {
             setWakeMode(applicationContext, PowerManager.PARTIAL_WAKE_LOCK)
-        }
+            setAudioAttributes(
+                AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_MEDIA)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_MOVIE)
+                    .build()
+            )
+            setVolume(1.0f, 1.0f)
 
+            setOnErrorListener(this@MediaPlaybackService)
+            setOnPreparedListener(this@MediaPlaybackService)
+            setOnCompletionListener(this@MediaPlaybackService )
+        }
     }
+
+
 }
