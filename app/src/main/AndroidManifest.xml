@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
 
     <application
         android:name=".App"
@@ -19,7 +20,7 @@
         <service
             android:name=".MediaPlaybackService"
             android:enabled="true"
-            android:exported="false"></service>
+            android:exported="false" />
 
         <activity
             android:name=".view.MainActivity"
@@ -37,8 +38,15 @@
                 android:resource="@xml/searchable" />
         </activity>
 
+        <receiver android:name="androidx.media.session.MediaButtonReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON"/>
+                <action android:name="android.media.AUDIO_BECOMING_NOISY"/>
+            </intent-filter>
+        </receiver>
+
         <service
-            android:name=".MediaPlayerService"
+            android:name=".MediaPlaybackService"
             android:exported="false" />
     </application>
 
