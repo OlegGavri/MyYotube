@@ -1,5 +1,6 @@
 package com.reffum.myyoutube
 
+import android.content.ComponentName
 import android.media.AudioAttributes
 import android.media.AudioManager
 import android.media.MediaPlayer
@@ -27,68 +28,15 @@ class MediaPlaybackService : MediaBrowserServiceCompat(),
         private const val channelId = "com.reffum.myyoutube.NOTIFICATION_CHANNEL_ID"
     }
 
-    inner class MySessionCallback : MediaSessionCompat.Callback() {
-        override fun onPlay() {
-            super.onPlay()
-
-            val context = baseContext
-
-            val controller = mediaSession!!.controller
-            val mediaMetadata = controller.metadata
-            val description = mediaMetadata.description
-
-            val builder = NotificationCompat.Builder(context, channelId).apply {
-                setContentTitle(description.title)
-                setContentText(description.subtitle)
-                setLargeIcon(description.iconBitmap)
-
-                setContentIntent(controller.sessionActivity)
-                setDeleteIntent(
-                    MediaButtonReceiver.buildMediaButtonPendingIntent(
-                        context,
-                        PlaybackStateCompat.ACTION_STOP
-                    )
-                )
-
-                setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                setSmallIcon(R.drawable.ic_launcher_foreground)
-
-                setStyle(
-                    androidx.media.app.NotificationCompat.MediaStyle()
-                        .setMediaSession(mediaSession!!.sessionToken)
-                        .setShowActionsInCompactView(0)
-                        .setShowCancelButton(true)
-                        .setCancelButtonIntent(
-                            MediaButtonReceiver.buildMediaButtonPendingIntent(
-                                context,
-                                PlaybackStateCompat.ACTION_STOP
-                            )
-                        )
-                )
-            }
-
-            val id = 0
-            startForeground(id, builder.build())
-        }
-    }
-
     private lateinit var mediaPlayer : MediaPlayer
     private var mediaSession : MediaSessionCompat? = null
-    private lateinit var stateBuilder : PlaybackStateCompat.Builder
+    private val mediaSessionCallback = object : MediaSessionCompat.Callback() {
+        //TODO: Implement this
+    }
 
     override fun onCreate() {
         super.onCreate()
 
-        // Create MediaSession
-        mediaSession = MediaSessionCompat(baseContext, LOG_TAG).apply {
-
-            stateBuilder = PlaybackStateCompat.Builder()
-                .setActions(PlaybackStateCompat.ACTION_PLAY or
-                        PlaybackStateCompat.ACTION_PLAY_PAUSE)
-            setPlaybackState(stateBuilder.build())
-            setCallback(MySessionCallback())
-            setSessionToken(sessionToken)
-        }
     }
 
     override fun onGetRoot(
@@ -121,6 +69,19 @@ class MediaPlaybackService : MediaBrowserServiceCompat(),
             setOnPreparedListener(this@MediaPlaybackService)
             setOnCompletionListener(this@MediaPlaybackService )
         }
+    }
+
+    private fun initMediaSession() {
+        val mediaButtonReceiver = ComponentName(applicationContext, MediaButtonReceiver::class.java)
+        mediaSession = MediaSessionCompat(
+            applicationContext,
+            "MyYoutubeMediaService",
+            mediaButtonReceiver,
+            null).apply {
+                setCallback(mediaSessionCallback)
+            }
+        }
+
     }
 
 
