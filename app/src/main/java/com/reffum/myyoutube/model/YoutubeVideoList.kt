@@ -20,6 +20,8 @@ import com.reffum.myyoutube.VideoData
 
 // Contain last search list and methods for get data from Youtube
 object YoutubeVideoList {
+    var current : VideoData? = null
+
     private const val API_KEY = "AIzaSyBGMvsvE5t8D8p213pxuNglIQEfO--1wXU"
     private const val APPLICATION_NAME = "myyoutube"
 
@@ -60,7 +62,9 @@ object YoutubeVideoList {
                     "Unknown",
                     date.toString(),
                     videoId,
-                    bitmap )
+                    bitmap,
+                    getYoutubeDirectVideoUrl(videoId)
+                )
 
                 videoList.add(videoData)
             }

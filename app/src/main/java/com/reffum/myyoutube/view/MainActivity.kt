@@ -48,6 +48,8 @@ class MainActivity : AppCompatActivity(),
         SearchRecycleViewAdapter(this)
 
     private lateinit var mediaBrowser : MediaBrowserCompat
+    private lateinit var mediaController: MediaControllerCompat
+    private var playbackTransportControls: MediaControllerCompat.TransportControls? = null
     private var connectionCallbacks : MediaBrowserCompat.ConnectionCallback =
         object : MediaBrowserCompat.ConnectionCallback() {
             override fun onConnected() {
@@ -63,15 +65,18 @@ class MainActivity : AppCompatActivity(),
                     )
                 }
 
-                buildTransportControls()
+                mediaController.registerCallback(controllerCallback)
+                playbackTransportControls = mediaController.transportControls
             }
 
             override fun onConnectionSuspended() {
-                TODO("Not implement yet")
+                // Service was crashed. Disable transport controls
+                Log.d(TAG, "onConnectionSuspended() the service was crashed.")
+                playbackTransportControls = null
             }
 
             override fun onConnectionFailed() {
-                TODO("Not implement yer")
+                Log.d(TAG, "onConnectionFailed: the service hasn't been able to connect")
             }
         }
 
@@ -99,16 +104,13 @@ class MainActivity : AppCompatActivity(),
 
     override fun onStart() {
         super.onStart()
+        Log.d(TAG, "onStart(). Connect media browser")
         mediaBrowser.connect()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        volumeControlStream = AudioManager.STREAM_MUSIC
     }
 
     override fun onStop() {
         super.onStop()
+        Log.d(TAG, "onStop(). Disconnect media browser")
         MediaControllerCompat.getMediaController(this).unregisterCallback(controllerCallback)
         mediaBrowser.disconnect()
     }
@@ -216,16 +218,11 @@ class MainActivity : AppCompatActivity(),
         mediaControllerWidget.setAnchorView(surfaceView)
     }
 
-    fun buildTransportControls() {
-        val mediaController = MediaControllerCompat.getMediaController(this)
-        mediaController.registerCallback(controllerCallback)
-    }
-
     /**
      * Implementation of MediaController.MediaPlayerControl
      */
     override fun start() {
-
+        playbackTransportControls?.play()
     }
 
     override fun pause() {
