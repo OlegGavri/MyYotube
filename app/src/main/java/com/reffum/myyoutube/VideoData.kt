@@ -20,6 +20,4 @@ class VideoData(
 
         // image, icon
         val image: Bitmap,
-
-        // Direct URL
-        val url:String)
+        )

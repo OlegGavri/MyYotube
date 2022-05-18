@@ -14,7 +14,6 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.util.Log
 import androidx.media.MediaBrowserServiceCompat
 import androidx.media.session.MediaButtonReceiver
-import com.reffum.myyoutube.model.YoutubeVideoList
 
 private const val MY_MEDIA_ROOT_ID = "media_root_id"
 private const val MY_EMPTY_MEDIA_ROOT_ID = "empty_root_id"
@@ -46,14 +45,14 @@ class MediaPlaybackService : MediaBrowserServiceCompat(),
             }
 
             // Start playing of current video
-            val currentVideo = YoutubeVideoList.current
-            if(currentVideo == null){
-                Log.d(LOG_TAG, "onPlay() called, but current video empty")
-                return
-            }
-
-            mediaPlayer.setDataSource(currentVideo.url)
-            mediaPlayer.prepareAsync()
+//            val currentVideo = YoutubeVideoList.current
+//            if(currentVideo == null){
+//                Log.d(LOG_TAG, "onPlay() called, but current video empty")
+//                return
+//            }
+//
+//            //mediaPlayer.setDataSource(currentVideo.url)
+//            mediaPlayer.prepareAsync()
         }
     }
 

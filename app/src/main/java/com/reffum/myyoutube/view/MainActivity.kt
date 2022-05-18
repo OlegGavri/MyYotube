@@ -24,7 +24,6 @@ import com.reffum.myyoutube.MediaPlaybackService
 import com.reffum.myyoutube.MyViewModel
 import com.reffum.myyoutube.R
 import com.reffum.myyoutube.VideoData
-import com.reffum.myyoutube.model.YoutubeVideoList
 import kotlinx.coroutines.launch
 
 
@@ -173,13 +172,11 @@ class MainActivity : AppCompatActivity(),
      * @param videoId Youtube video id
      */
     private fun loadVideo(videoId : String) {
-        val videoUrl = "http://www.youtube.com/watch?v=$videoId"
-
         lifecycleScope.launch {
             // Show progress bar while video download
             progressBar.visibility = View.VISIBLE
 
-            val directUrl: String = YoutubeVideoList.getYoutubeDirectVideoUrl(videoUrl)
+            val directUrl: String = model.getYoutubeDirectVideoUrl(videoId)
 
             if(directUrl.isNotEmpty()) {
                 playVideo(directUrl)
@@ -189,7 +186,7 @@ class MainActivity : AppCompatActivity(),
                     "Video load error",
                     Toast.LENGTH_SHORT
                 ).show()
-                Log.e(TAG, "Get stream url for $videoUrl error")
+                Log.e(TAG, "Get stream url for $videoId error")
             }
             progressBar.visibility = View.GONE
         }
