@@ -65,6 +65,10 @@ class MainActivity : AppCompatActivity(),
                     )
                 }
 
+                mediaController = MediaControllerCompat(
+                    this@MainActivity,
+                    mediaBrowser.sessionToken
+                )
                 mediaController.registerCallback(controllerCallback)
                 playbackTransportControls = mediaController.transportControls
             }
