@@ -69,8 +69,11 @@ class MainActivity : AppCompatActivity(),
                     this@MainActivity,
                     mediaBrowser.sessionToken
                 )
+
                 mediaController.registerCallback(controllerCallback)
                 playbackTransportControls = mediaController.transportControls
+
+                setSurfaceHolderInMediaService()
             }
 
             override fun onConnectionSuspended() {
@@ -205,6 +208,8 @@ class MainActivity : AppCompatActivity(),
 
         assert(directUrl.isNotEmpty())
 
+        var bundle = Bundle()
+
         playbackTransportControls?.play()
     }
 
@@ -270,6 +275,8 @@ class MainActivity : AppCompatActivity(),
         TODO("Not yet implemented")
     }
 
-
-
+    private fun setSurfaceHolderInMediaService() {
+        val bundle = Bundle()
+        mediaController.sendCommand()
+    }
 }
