@@ -22,5 +22,5 @@ class VideoData(
         val image: Bitmap,
 
         // Direct url
-        val directUrl : String? = null
+        var directUrl : String? = null
         )

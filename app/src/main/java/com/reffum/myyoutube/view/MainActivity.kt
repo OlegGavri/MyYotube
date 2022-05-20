@@ -180,6 +180,7 @@ class MainActivity : AppCompatActivity(),
             progressBar.visibility = View.VISIBLE
 
             val directUrl: String = model.getYoutubeDirectVideoUrl(videoId)
+            SearchList.current!!.directUrl = directUrl
 
             if(directUrl.isNotEmpty()) {
                 playVideo(directUrl)

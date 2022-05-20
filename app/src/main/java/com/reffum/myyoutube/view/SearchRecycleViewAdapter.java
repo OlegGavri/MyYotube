@@ -92,6 +92,7 @@ public class SearchRecycleViewAdapter extends RecyclerView.Adapter {
         viewHolder.setVideoId(videoList.get(position).getId());
         viewHolder.setVideoViews(videoList.get(position).getViews());
         viewHolder.setVideoDate(videoList.get(position).getDate());
+        viewHolder.videoData = videoList.get(position);
     }
 
     @Override
