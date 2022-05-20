@@ -24,6 +24,7 @@ import com.reffum.myyoutube.MediaPlaybackService
 import com.reffum.myyoutube.MyViewModel
 import com.reffum.myyoutube.R
 import com.reffum.myyoutube.VideoData
+import com.reffum.myyoutube.model.SearchList
 import kotlinx.coroutines.launch
 
 
@@ -142,8 +143,9 @@ class MainActivity : AppCompatActivity(),
      * Handle click on video list in RecycleView
      * @param videoId Youtube ID
      */
-    override fun onVideoItemClick(videoId: String?) {
-        loadVideo(videoId!!)
+    override fun onVideoItemClick(videoData: VideoData?) {
+        SearchList.current = videoData
+        loadVideo(videoData!!.id)
     }
 
     /**
@@ -161,6 +163,7 @@ class MainActivity : AppCompatActivity(),
                 val searchString = intent.getStringExtra(SearchManager.QUERY)!!
                 progressBar.visibility = View.VISIBLE
                 val videoList : List<VideoData> = model.searchYoutubeVideo(searchString)
+                SearchList.list = videoList
                 searchRecycleViewAdapter.setVideoList(videoList as ArrayList<VideoData>?)
                 progressBar.visibility = View.GONE
             }
@@ -201,7 +204,7 @@ class MainActivity : AppCompatActivity(),
 
         assert(directUrl.isNotEmpty())
 
-        //TODO: play video
+        playbackTransportControls?.play()
     }
 
     private fun initViews() {

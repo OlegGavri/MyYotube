@@ -18,7 +18,7 @@ import java.util.ArrayList;
 public class SearchRecycleViewAdapter extends RecyclerView.Adapter {
 
     interface ItemClickListener {
-        void onVideoItemClick(String videoId);
+        void onVideoItemClick(VideoData videoData);
     }
 
     ItemClickListener clickListener;
@@ -41,6 +41,7 @@ public class SearchRecycleViewAdapter extends RecyclerView.Adapter {
         ImageView itemImage;
 
         String videoId;
+        VideoData videoData;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -49,7 +50,8 @@ public class SearchRecycleViewAdapter extends RecyclerView.Adapter {
             itemViews = itemView.findViewById(R.id.item_views);
             itemImage = itemView.findViewById(R.id.item_image);
             itemDate = itemView.findViewById(R.id.item_date);
-            itemView.setOnClickListener(view -> clickListener.onVideoItemClick(videoId));
+
+            itemView.setOnClickListener(view -> clickListener.onVideoItemClick(videoData));
         }
 
         public void setVideoImage(Bitmap image) {
