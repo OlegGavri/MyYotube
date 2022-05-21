@@ -5,8 +5,11 @@ import android.app.SearchManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.ServiceConnection
 import android.media.AudioManager
 import android.os.Bundle
+import android.os.IBinder
+import android.os.ResultReceiver
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.util.Log
@@ -18,6 +21,7 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.media.MediaBrowserServiceCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.reffum.myyoutube.MediaPlaybackService
@@ -33,7 +37,7 @@ class MainActivity : AppCompatActivity(),
     MediaController.MediaPlayerControl
 {
     companion object {
-        private const val TAG = "MyYoutube"
+        private const val TAG = "MainActivity"
     }
 
     private val model : MyViewModel by viewModels()
@@ -47,51 +51,23 @@ class MainActivity : AppCompatActivity(),
     private val searchRecycleViewAdapter: SearchRecycleViewAdapter =
         SearchRecycleViewAdapter(this)
 
-    private lateinit var mediaBrowser : MediaBrowserCompat
-    private lateinit var mediaController: MediaControllerCompat
-    private var playbackTransportControls: MediaControllerCompat.TransportControls? = null
-    private var connectionCallbacks : MediaBrowserCompat.ConnectionCallback =
-        object : MediaBrowserCompat.ConnectionCallback() {
-            override fun onConnected() {
-                mediaBrowser.sessionToken.also { token ->
-                    val mediaController = MediaControllerCompat(
-                        this@MainActivity,
-                        token
-                    )
+    private var mediaService : MediaPlaybackService? = null
 
-                    MediaControllerCompat.setMediaController(
-                        this@MainActivity,
-                        mediaController
-                    )
-                }
-
-                mediaController = MediaControllerCompat(
-                    this@MainActivity,
-                    mediaBrowser.sessionToken
-                )
-
-                mediaController.registerCallback(controllerCallback)
-                playbackTransportControls = mediaController.transportControls
-
-                setSurfaceHolderInMediaService()
+    // Our connection to the Media Service
+    private val serviceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            if(service is MediaPlaybackService.MediaServiceBinder) {
+                mediaService = service.getService()
             }
-
-            override fun onConnectionSuspended() {
-                // Service was crashed. Disable transport controls
-                Log.d(TAG, "onConnectionSuspended() the service was crashed.")
-                playbackTransportControls = null
-            }
-
-            override fun onConnectionFailed() {
-                Log.d(TAG, "onConnectionFailed: the service hasn't been able to connect")
-            }
+            mediaService!!.setSurfaceHolder(surfaceView)
         }
 
-    private val controllerCallback = object : MediaControllerCompat.Callback() {
-        override fun onSessionDestroyed() {
-            mediaBrowser.disconnect()
+        override fun onServiceDisconnected(name: ComponentName?) {
+            Log.d(TAG, "onServiceDisconnected called. Service crashed.")
+            mediaService = null
         }
     }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -99,27 +75,20 @@ class MainActivity : AppCompatActivity(),
 
         initViews()
 
-        mediaBrowser = MediaBrowserCompat(
-            this,
-            ComponentName(this, MediaPlaybackService::class.java),
-            connectionCallbacks,
-            null
+        // Start media service
+        bindService(
+            Intent(this, MediaPlaybackService::class.java),
+            serviceConnection,
+            Context.BIND_AUTO_CREATE
         )
 
         Log.d(TAG, "onCreate()")
     }
 
-    override fun onStart() {
-        super.onStart()
-        Log.d(TAG, "onStart(). Connect media browser")
-        mediaBrowser.connect()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        Log.d(TAG, "onStop(). Disconnect media browser")
-        MediaControllerCompat.getMediaController(this).unregisterCallback(controllerCallback)
-        mediaBrowser.disconnect()
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d(TAG, "OnDestroy called")
+        mediaService?.resetSurfaceHolder()
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
@@ -205,12 +174,8 @@ class MainActivity : AppCompatActivity(),
      */
     private fun playVideo(directUrl: String) {
         Log.d(TAG, "playVideo($directUrl)")
-
         assert(directUrl.isNotEmpty())
-
-        var bundle = Bundle()
-
-        playbackTransportControls?.play()
+        mediaService?.playUrl(directUrl)
     }
 
     private fun initViews() {
@@ -232,7 +197,7 @@ class MainActivity : AppCompatActivity(),
      * Implementation of MediaController.MediaPlayerControl
      */
     override fun start() {
-        playbackTransportControls?.play()
+
     }
 
     override fun pause() {
@@ -273,10 +238,5 @@ class MainActivity : AppCompatActivity(),
 
     override fun getAudioSessionId(): Int {
         TODO("Not yet implemented")
-    }
-
-    private fun setSurfaceHolderInMediaService() {
-        val bundle = Bundle()
-        mediaController.sendCommand()
     }
 }

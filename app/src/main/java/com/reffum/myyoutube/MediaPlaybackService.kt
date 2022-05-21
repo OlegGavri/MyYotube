@@ -1,25 +1,20 @@
 package com.reffum.myyoutube
 
-import android.content.ComponentName
+import android.app.Service
+import android.content.Context
 import android.content.Intent
 import android.media.AudioAttributes
-import android.media.AudioManager
 import android.media.MediaPlayer
-import android.media.session.MediaController
-import android.os.Bundle
+import android.os.Binder
+import android.os.IBinder
 import android.os.PowerManager
-import android.support.v4.media.MediaBrowserCompat
-import android.support.v4.media.session.MediaControllerCompat
-import android.support.v4.media.session.MediaSessionCompat
 import android.util.Log
-import androidx.media.MediaBrowserServiceCompat
-import androidx.media.session.MediaButtonReceiver
-import com.reffum.myyoutube.model.SearchList
+import android.view.SurfaceHolder
+import android.view.SurfaceView
+import android.view.WindowManager
 
-private const val MY_MEDIA_ROOT_ID = "media_root_id"
-private const val MY_EMPTY_MEDIA_ROOT_ID = "empty_root_id"
 
-class MediaPlaybackService : MediaBrowserServiceCompat(),
+class MediaPlaybackService : Service(),
         MediaPlayer.OnCompletionListener,
         MediaPlayer.OnErrorListener,
         MediaPlayer.OnPreparedListener
@@ -29,60 +24,62 @@ class MediaPlaybackService : MediaBrowserServiceCompat(),
         private const val channelId = "com.reffum.myyoutube.NOTIFICATION_CHANNEL_ID"
     }
 
-    private var isServiceStarted : Boolean = false
-
-    private lateinit var mediaPlayer : MediaPlayer
-    private lateinit var mediaSession : MediaSessionCompat
-    private lateinit var transportControls: MediaControllerCompat.TransportControls
-
-    private val mediaSessionCallback = object : MediaSessionCompat.Callback() {
-        override fun onPlay() {
-            super.onPlay()
-
-            // If service not started start it.
-            if(!isServiceStarted) {
-                Log.d(LOG_TAG, "Service was called to be started")
-                startService(Intent(applicationContext, MediaPlaybackService::class.java))
-            }
-
-            // Start playing of current video
-            val currentVideo = SearchList.current
-            if(currentVideo == null){
-                Log.d(LOG_TAG, "onPlay() called, but current video empty")
-                return
-            }
-
-            mediaPlayer.setDataSource(currentVideo.directUrl)
-            mediaPlayer.prepareAsync()
+    inner class MediaServiceBinder : Binder() {
+        fun getService() : MediaPlaybackService {
+            return this@MediaPlaybackService
         }
+    }
+
+    private var isServiceStarted : Boolean = false
+    private lateinit var mediaPlayer : MediaPlayer
+
+    // SurfaceView in which output video. If null, video not playing.
+    private var surfaceView : SurfaceView? = null
+
+    fun playUrl(url : String) {
+        mediaPlayer.setDataSource(url)
+        mediaPlayer.prepareAsync()
+    }
+
+    fun setSurfaceHolder(surfaceView : SurfaceView) {
+//        mediaPlayer = MediaPlayer()
+//        mediaPlayer.setSurface(surfaceHolder.surface)
+//        mediaPlayer.setDataSource(directUrl)
+//        mediaPlayer.prepare()
+//
+//        // Adjust surfaceView size to video size
+//        var videoWidth = mediaPlayer.videoWidth.toFloat()
+//        var videoHeight = mediaPlayer.videoHeight.toFloat()
+//        var screenWidth = windowManager.defaultDisplay.width
+//
+//        var lp  = surfaceView.layoutParams.also {
+//            it.width = screenWidth
+//            it.height = (videoHeight / videoWidth * screenWidth).toInt()
+//        }
+//
+//        surfaceView.layoutParams = lp
+//        mediaPlayer.start()
+        this.surfaceView = surfaceView
+        mediaPlayer.setSurface(surfaceView.holder.surface)
+    }
+
+    fun resetSurfaceHolder() {
+        mediaPlayer.setSurface(null)
     }
 
     override fun onCreate() {
         super.onCreate()
-
         initMediaPlayer()
-        initMediaSession()
+    }
+
+    override fun onBind(intent: Intent?): IBinder? {
+        return MediaServiceBinder()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d(LOG_TAG, "onStartCommand() entered")
         isServiceStarted = true
         return super.onStartCommand(intent, flags, startId)
-    }
-
-    override fun onGetRoot(
-        clientPackageName: String,
-        clientUid: Int,
-        rootHints: Bundle?
-    ): BrowserRoot? {
-        return BrowserRoot(MY_MEDIA_ROOT_ID, null)
-    }
-
-    override fun onLoadChildren(
-        parentId: String,
-        result: Result<MutableList<MediaBrowserCompat.MediaItem>>
-    ) {
-        return result.sendResult(null)
     }
 
     private fun initMediaPlayer() {
@@ -102,19 +99,6 @@ class MediaPlaybackService : MediaBrowserServiceCompat(),
         }
     }
 
-    private fun initMediaSession() {
-        val mediaButtonReceiver = ComponentName(applicationContext, MediaButtonReceiver::class.java)
-        mediaSession = MediaSessionCompat(
-            applicationContext,
-            "MyYoutubeMediaService",
-            mediaButtonReceiver,
-            null).apply {
-                setCallback(mediaSessionCallback)
-            }
-        transportControls = mediaSession.controller.transportControls
-        sessionToken = mediaSession.sessionToken
-    }
-
     /**
      * MediaPlayer callbacks
      */
@@ -124,7 +108,7 @@ class MediaPlaybackService : MediaBrowserServiceCompat(),
 
     override fun onPrepared(mp: MediaPlayer?) {
         Log.d(LOG_TAG, "onPrepared(). MediaPlayer ready to play")
-        mediaSession.isActive = true
+        adjustSurfaceViewSize()
         mediaPlayer.start()
     }
 
@@ -144,5 +128,21 @@ class MediaPlaybackService : MediaBrowserServiceCompat(),
         // onError() description said that only this 2 what may be.
         assert(false)
         return false
+    }
+
+    private fun adjustSurfaceViewSize() {
+        if (surfaceView != null) {
+            val windowManager = (getSystemService(WINDOW_SERVICE) as WindowManager)
+            var videoWidth = mediaPlayer.videoWidth.toFloat()
+            var videoHeight = mediaPlayer.videoHeight.toFloat()
+            var screenWidth = windowManager.defaultDisplay.width
+
+            var lp = surfaceView?.layoutParams.also {
+                it?.width = screenWidth
+                it?.height = (videoHeight / videoWidth * screenWidth).toInt()
+            }
+
+            surfaceView?.layoutParams = lp
+        }
     }
 }
