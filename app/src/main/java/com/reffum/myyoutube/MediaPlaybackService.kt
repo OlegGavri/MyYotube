@@ -1,17 +1,23 @@
 package com.reffum.myyoutube
 
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.os.Binder
+import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
 import android.util.Log
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.WindowManager
+import androidx.annotation.RequiresApi
 
 
 class MediaPlaybackService : Service(),
@@ -21,6 +27,7 @@ class MediaPlaybackService : Service(),
 {
     companion object {
         private const val LOG_TAG = "MediaPlaybackService"
+        private const val NOTIFICATOIN_ID = 1
         private const val channelId = "com.reffum.myyoutube.NOTIFICATION_CHANNEL_ID"
     }
 
@@ -52,16 +59,31 @@ class MediaPlaybackService : Service(),
     override fun onDestroy() {
         super.onDestroy()
         Log.d(LOG_TAG, "onDestroy called")
+        mediaPlayer.release()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d(LOG_TAG, "onStartCommand() entered")
-        isServiceStarted = true
+        if(!isServiceStarted) {
+            isServiceStarted = true
+
+            createNotificationChannel(channelId, "MediaPlaybackService")
+
+            val notification = Notification.Builder(this, channelId).apply {
+                setSmallIcon(R.drawable.ic_launcher_foreground)
+                setContentTitle("My music")
+                setContentText("My text")
+            }.build()
+
+            Log.d(LOG_TAG, "Start foreground service")
+
+            startForeground(NOTIFICATOIN_ID, notification)
+        }
         return super.onStartCommand(intent, flags, startId)
     }
 
-
     fun playUrl(url : String) {
+        mediaPlayer.reset()
         mediaPlayer.setDataSource(url)
         mediaPlayer.prepareAsync()
         isPlaying = true
@@ -69,6 +91,7 @@ class MediaPlaybackService : Service(),
 
     fun setSurfaceHolder(surfaceView : SurfaceView) {
         Log.d(LOG_TAG, "Change surface")
+
         this.surfaceView = surfaceView
         surfaceView.holder.addCallback(object : SurfaceHolder.Callback {
             override fun surfaceCreated(holder: SurfaceHolder) {
@@ -86,23 +109,19 @@ class MediaPlaybackService : Service(),
             }
 
             override fun surfaceDestroyed(holder: SurfaceHolder) {
-
+                Log.d(LOG_TAG, "Surface destroyed")
+                mediaPlayer.setSurface(null)
             }
         })
-        mediaPlayer.setSurface(surfaceView.holder.surface)
 
-        Log.d(LOG_TAG, "playing = $isPlaying")
+        if(surfaceView.holder.surface.isValid)
+            mediaPlayer.setDisplay(surfaceView.holder)
 
         if(isPlaying){
             Log.d(LOG_TAG, "Start prepareAsync")
             mediaPlayer.stop()
             mediaPlayer.prepareAsync()
         }
-    }
-
-    fun resetSurfaceHolder() {
-        Log.d(LOG_TAG, "Reset surface")
-        mediaPlayer.setSurface(null)
     }
 
     private fun initMediaPlayer() {
@@ -147,9 +166,12 @@ class MediaPlaybackService : Service(),
                 Log.d(LOG_TAG, "MediaPlayer error unknown. extra = $extra")
                 return false
             }
+            else -> {
+                Log.d(LOG_TAG, "MediaPlayer error: $what, extra = $extra")
+                return false
+            }
         }
-        // onError() description said that only this 2 what may be.
-        assert(false)
+
         return false
     }
 
@@ -167,5 +189,24 @@ class MediaPlaybackService : Service(),
 
             surfaceView?.layoutParams = lp
         }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun createNotificationChannel(
+        channelId: String,
+        channelName: String): String {
+
+        val chan = NotificationChannel(
+            channelId,
+            channelName,
+            NotificationManager.IMPORTANCE_NONE
+        )
+
+        chan.lightColor = Color.BLUE
+        chan.lockscreenVisibility = Notification.VISIBILITY_PRIVATE
+        val service = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        service.createNotificationChannel(chan)
+
+        return channelId
     }
 }

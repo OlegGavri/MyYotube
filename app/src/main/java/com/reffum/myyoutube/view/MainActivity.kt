@@ -67,6 +67,7 @@ class MainActivity : AppCompatActivity(),
         initViews()
 
         // Start media service
+        startForegroundService(Intent(this, MediaPlaybackService::class.java))
         bindService(
             Intent(this, MediaPlaybackService::class.java),
             serviceConnection,
@@ -74,12 +75,6 @@ class MainActivity : AppCompatActivity(),
         )
 
         Log.d(TAG, "onCreate()")
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        Log.d(TAG, "OnDestroy called")
-        model.mediaService?.resetSurfaceHolder()
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
