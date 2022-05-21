@@ -36,50 +36,73 @@ class MediaPlaybackService : Service(),
     // SurfaceView in which output video. If null, video not playing.
     private var surfaceView : SurfaceView? = null
 
-    fun playUrl(url : String) {
-        mediaPlayer.setDataSource(url)
-        mediaPlayer.prepareAsync()
-    }
-
-    fun setSurfaceHolder(surfaceView : SurfaceView) {
-//        mediaPlayer = MediaPlayer()
-//        mediaPlayer.setSurface(surfaceHolder.surface)
-//        mediaPlayer.setDataSource(directUrl)
-//        mediaPlayer.prepare()
-//
-//        // Adjust surfaceView size to video size
-//        var videoWidth = mediaPlayer.videoWidth.toFloat()
-//        var videoHeight = mediaPlayer.videoHeight.toFloat()
-//        var screenWidth = windowManager.defaultDisplay.width
-//
-//        var lp  = surfaceView.layoutParams.also {
-//            it.width = screenWidth
-//            it.height = (videoHeight / videoWidth * screenWidth).toInt()
-//        }
-//
-//        surfaceView.layoutParams = lp
-//        mediaPlayer.start()
-        this.surfaceView = surfaceView
-        mediaPlayer.setSurface(surfaceView.holder.surface)
-    }
-
-    fun resetSurfaceHolder() {
-        mediaPlayer.setSurface(null)
-    }
+    private var isPlaying : Boolean = false
 
     override fun onCreate() {
         super.onCreate()
+        Log.d(LOG_TAG, "onCreate called")
         initMediaPlayer()
     }
 
     override fun onBind(intent: Intent?): IBinder? {
+        Log.d(LOG_TAG, "onBind called")
         return MediaServiceBinder()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d(LOG_TAG, "onDestroy called")
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d(LOG_TAG, "onStartCommand() entered")
         isServiceStarted = true
         return super.onStartCommand(intent, flags, startId)
+    }
+
+
+    fun playUrl(url : String) {
+        mediaPlayer.setDataSource(url)
+        mediaPlayer.prepareAsync()
+        isPlaying = true
+    }
+
+    fun setSurfaceHolder(surfaceView : SurfaceView) {
+        Log.d(LOG_TAG, "Change surface")
+        this.surfaceView = surfaceView
+        surfaceView.holder.addCallback(object : SurfaceHolder.Callback {
+            override fun surfaceCreated(holder: SurfaceHolder) {
+                Log.d(LOG_TAG, "surface changed")
+                mediaPlayer.setSurface(holder.surface)
+            }
+
+            override fun surfaceChanged(
+                holder: SurfaceHolder,
+                format: Int,
+                width: Int,
+                height: Int
+            ) {
+
+            }
+
+            override fun surfaceDestroyed(holder: SurfaceHolder) {
+
+            }
+        })
+        mediaPlayer.setSurface(surfaceView.holder.surface)
+
+        Log.d(LOG_TAG, "playing = $isPlaying")
+
+        if(isPlaying){
+            Log.d(LOG_TAG, "Start prepareAsync")
+            mediaPlayer.stop()
+            mediaPlayer.prepareAsync()
+        }
+    }
+
+    fun resetSurfaceHolder() {
+        Log.d(LOG_TAG, "Reset surface")
+        mediaPlayer.setSurface(null)
     }
 
     private fun initMediaPlayer() {

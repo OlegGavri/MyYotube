@@ -1,17 +1,12 @@
 package com.reffum.myyoutube.view
 
-
 import android.app.SearchManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import android.media.AudioManager
 import android.os.Bundle
 import android.os.IBinder
-import android.os.ResultReceiver
-import android.support.v4.media.MediaBrowserCompat
-import android.support.v4.media.session.MediaControllerCompat
 import android.util.Log
 import android.view.*
 import android.widget.MediaController
@@ -21,7 +16,6 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import androidx.media.MediaBrowserServiceCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.reffum.myyoutube.MediaPlaybackService
@@ -51,23 +45,20 @@ class MainActivity : AppCompatActivity(),
     private val searchRecycleViewAdapter: SearchRecycleViewAdapter =
         SearchRecycleViewAdapter(this)
 
-    private var mediaService : MediaPlaybackService? = null
-
     // Our connection to the Media Service
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             if(service is MediaPlaybackService.MediaServiceBinder) {
-                mediaService = service.getService()
+                model.mediaService = service.getService()
             }
-            mediaService!!.setSurfaceHolder(surfaceView)
+            model.mediaService!!.setSurfaceHolder(surfaceView)
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
             Log.d(TAG, "onServiceDisconnected called. Service crashed.")
-            mediaService = null
+            model.mediaService = null
         }
     }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -88,7 +79,7 @@ class MainActivity : AppCompatActivity(),
     override fun onDestroy() {
         super.onDestroy()
         Log.d(TAG, "OnDestroy called")
-        mediaService?.resetSurfaceHolder()
+        model.mediaService?.resetSurfaceHolder()
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
@@ -113,7 +104,7 @@ class MainActivity : AppCompatActivity(),
 
     /**
      * Handle click on video list in RecycleView
-     * @param videoId Youtube ID
+     * @param videoData
      */
     override fun onVideoItemClick(videoData: VideoData?) {
         SearchList.current = videoData
@@ -135,7 +126,6 @@ class MainActivity : AppCompatActivity(),
                 val searchString = intent.getStringExtra(SearchManager.QUERY)!!
                 progressBar.visibility = View.VISIBLE
                 val videoList : List<VideoData> = model.searchYoutubeVideo(searchString)
-                SearchList.list = videoList
                 searchRecycleViewAdapter.setVideoList(videoList as ArrayList<VideoData>?)
                 progressBar.visibility = View.GONE
             }
@@ -152,10 +142,9 @@ class MainActivity : AppCompatActivity(),
             progressBar.visibility = View.VISIBLE
 
             val directUrl: String = model.getYoutubeDirectVideoUrl(videoId)
-            SearchList.current!!.directUrl = directUrl
 
             if(directUrl.isNotEmpty()) {
-                playVideo(directUrl)
+                model.playVideo(directUrl)
             } else {
                 Toast.makeText(
                     applicationContext,
@@ -166,16 +155,6 @@ class MainActivity : AppCompatActivity(),
             }
             progressBar.visibility = View.GONE
         }
-    }
-
-    /**
-     * Play video by URL
-     * @param directUrl
-     */
-    private fun playVideo(directUrl: String) {
-        Log.d(TAG, "playVideo($directUrl)")
-        assert(directUrl.isNotEmpty())
-        mediaService?.playUrl(directUrl)
     }
 
     private fun initViews() {
