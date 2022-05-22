@@ -23,12 +23,12 @@ import com.reffum.myyoutube.viewmodel.MainActivityViewModel
 import com.reffum.myyoutube.R
 import com.reffum.myyoutube.model.VideoData
 import com.reffum.myyoutube.model.SearchList
-import com.reffum.myyoutube.viewmodel.SearchRecycleViewAdapter
+import com.reffum.myyoutube.viewmodel.SearchListAdapter
 import kotlinx.coroutines.launch
 
 
 class MainActivity : AppCompatActivity(),
-    SearchRecycleViewAdapter.ItemClickListener
+    SearchListAdapter.ItemClickedListener
 {
     companion object {
         private const val TAG = "MainActivity"
@@ -42,8 +42,8 @@ class MainActivity : AppCompatActivity(),
     private lateinit var progressBar: ProgressBar
     private lateinit var videoListRecycleView : RecyclerView
     private lateinit var mediaControllerWidget : MediaController
-    private val searchRecycleViewAdapter: SearchRecycleViewAdapter =
-        SearchRecycleViewAdapter(this)
+    private val searchRecycleViewAdapter: SearchListAdapter =
+        SearchListAdapter(this)
 
     // Our connection to the Media Service
     private val serviceConnection = object : ServiceConnection {
@@ -104,9 +104,9 @@ class MainActivity : AppCompatActivity(),
      * Handle click on video list in RecycleView
      * @param videoData
      */
-    override fun onVideoItemClick(videoData: VideoData?) {
+    override fun onVideoItemClick(videoData: VideoData) {
         SearchList.current = videoData
-        loadVideo(videoData!!.id)
+        loadVideo(videoData.id)
     }
 
     /**
@@ -119,12 +119,12 @@ class MainActivity : AppCompatActivity(),
             return
 
         // User initial search
-        if(Intent.ACTION_SEARCH.equals(intent.action)) {
+        if(Intent.ACTION_SEARCH == intent.action) {
             lifecycleScope.launch {
                 val searchString = intent.getStringExtra(SearchManager.QUERY)!!
                 progressBar.visibility = View.VISIBLE
-                val videoList : List<VideoData> = model.searchYoutubeVideo(searchString)
-                searchRecycleViewAdapter.setVideoList(videoList as ArrayList<VideoData>?)
+                model.searchYoutubeVideo(searchString)
+                searchRecycleViewAdapter.notifyDataSetChanged()
                 progressBar.visibility = View.GONE
             }
         }
@@ -162,9 +162,9 @@ class MainActivity : AppCompatActivity(),
                 adapter = searchRecycleViewAdapter
             }
 
-        surfaceView = findViewById<SurfaceView>(R.id.surface_view)
+        surfaceView = findViewById(R.id.surface_view)
         surfaceHolder = surfaceView.holder
-        progressBar = findViewById<ProgressBar>(R.id.progress_bar)
+        progressBar = findViewById(R.id.progress_bar)
         mediaControllerWidget = MediaController(this)
         mediaControllerWidget.setAnchorView(surfaceView)
     }
