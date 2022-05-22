@@ -21,7 +21,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.reffum.myyoutube.MediaPlaybackService
 import com.reffum.myyoutube.MyViewModel
 import com.reffum.myyoutube.R
-import com.reffum.myyoutube.VideoData
+import com.reffum.myyoutube.model.VideoData
 import com.reffum.myyoutube.model.SearchList
 import kotlinx.coroutines.launch
 

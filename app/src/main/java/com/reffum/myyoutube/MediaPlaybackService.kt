@@ -44,9 +44,6 @@ class MediaPlaybackService : Service(),
     // SurfaceView in which output video. If null, video not playing.
     private var surfaceView : SurfaceView? = null
 
-    //TODO: Use mediaPlayer.isPlaying instead this var
-    private var isPlaying : Boolean = false
-
     override fun onCreate() {
         super.onCreate()
         Log.d(LOG_TAG, "onCreate called")
@@ -88,7 +85,6 @@ class MediaPlaybackService : Service(),
         mediaPlayer.reset()
         mediaPlayer.setDataSource(url)
         mediaPlayer.prepareAsync()
-        isPlaying = true
     }
 
     fun setSurfaceHolder(surfaceView : SurfaceView) {
@@ -119,7 +115,7 @@ class MediaPlaybackService : Service(),
         if(surfaceView.holder.surface.isValid)
             mediaPlayer.setDisplay(surfaceView.holder)
 
-        if(isPlaying){
+        if(mediaPlayer.isPlaying){
             Log.d(LOG_TAG, "Start prepareAsync")
             mediaPlayer.stop()
             mediaPlayer.prepareAsync()
@@ -188,8 +184,9 @@ class MediaPlaybackService : Service(),
                 return true
             }
 
+            // Now it is not used
             override fun getAudioSessionId(): Int {
-                TODO("Not yet implemented")
+                return 0
             }
         }
     }

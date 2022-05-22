@@ -8,9 +8,6 @@ import com.google.api.client.json.gson.GsonFactory
 import com.google.api.client.util.DateTime
 import com.google.api.services.youtube.YouTube
 import com.google.api.services.youtube.model.SearchListResponse
-import com.reffum.myyoutube.VideoData
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.net.URL
 import java.security.GeneralSecurityException

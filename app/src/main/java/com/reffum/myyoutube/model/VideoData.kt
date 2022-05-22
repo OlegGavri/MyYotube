@@ -1,6 +1,5 @@
-package com.reffum.myyoutube
+package com.reffum.myyoutube.model
 
-//TODO: move to model
 import android.graphics.Bitmap
 
 // YouTube video data

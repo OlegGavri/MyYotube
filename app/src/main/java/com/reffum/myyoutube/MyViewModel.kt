@@ -3,6 +3,7 @@ package com.reffum.myyoutube
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.reffum.myyoutube.model.SearchList
+import com.reffum.myyoutube.model.VideoData
 import com.reffum.myyoutube.model.Youtube
 import com.yausername.youtubedl_android.YoutubeDL
 import com.yausername.youtubedl_android.YoutubeDLRequest
