@@ -1,5 +1,6 @@
 package com.reffum.myyoutube
 
+import android.annotation.SuppressLint
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.reffum.myyoutube.model.SearchList
@@ -12,14 +13,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.IOException
 
+@Suppress("BlockingMethodInNonBlockingContext")
 class MainActivityViewModel : ViewModel() {
 
     companion object {
         private const val TAG = "MyViewModel"
-        private const val API_KEY = "AIzaSyBGMvsvE5t8D8p213pxuNglIQEfO--1wXU"
-        private const val APPLICATION_NAME = "myyoutube"
     }
 
+    @SuppressLint("StaticFieldLeak")
     var mediaService : MediaPlaybackService? = null
 
     // Perform search string in Youtube. Return search result in
@@ -37,7 +38,7 @@ class MainActivityViewModel : ViewModel() {
     suspend fun getYoutubeDirectVideoUrl(videoId : String) : String {
         val videoUrl = "http://www.youtube.com/watch?v=$videoId"
 
-        val request : YoutubeDLRequest = YoutubeDLRequest(videoUrl)
+        val request = YoutubeDLRequest(videoUrl)
         request.addOption("-f", "best")
         val videoInfo : VideoInfo
 
