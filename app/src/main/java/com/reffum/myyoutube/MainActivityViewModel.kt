@@ -12,7 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.IOException
 
-class MyViewModel : ViewModel() {
+class MainActivityViewModel : ViewModel() {
 
     companion object {
         private const val TAG = "MyViewModel"

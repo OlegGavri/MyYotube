@@ -19,7 +19,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.reffum.myyoutube.MediaPlaybackService
-import com.reffum.myyoutube.MyViewModel
+import com.reffum.myyoutube.MainActivityViewModel
 import com.reffum.myyoutube.R
 import com.reffum.myyoutube.model.VideoData
 import com.reffum.myyoutube.model.SearchList
@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity(),
         private const val TAG = "MainActivity"
     }
 
-    private val model : MyViewModel by viewModels()
+    private val model : MainActivityViewModel by viewModels()
 
     // Activity views
     private lateinit var surfaceView: SurfaceView
