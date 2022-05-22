@@ -27,8 +27,7 @@ import kotlinx.coroutines.launch
 
 
 class MainActivity : AppCompatActivity(),
-    SearchRecycleViewAdapter.ItemClickListener,
-    MediaController.MediaPlayerControl
+    SearchRecycleViewAdapter.ItemClickListener
 {
     companion object {
         private const val TAG = "MainActivity"
@@ -52,6 +51,9 @@ class MainActivity : AppCompatActivity(),
                 model.mediaService = service.getService()
             }
             model.mediaService!!.setSurfaceHolder(surfaceView)
+            mediaControllerWidget.setMediaPlayer(
+                model.mediaService!!.getMediaControllerCallback()
+            )
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
@@ -163,54 +165,6 @@ class MainActivity : AppCompatActivity(),
         surfaceHolder = surfaceView.holder
         progressBar = findViewById<ProgressBar>(R.id.progress_bar)
         mediaControllerWidget = MediaController(this)
-        mediaControllerWidget.setMediaPlayer(this)
         mediaControllerWidget.setAnchorView(surfaceView)
-    }
-
-    /**
-     * Implementation of MediaController.MediaPlayerControl
-     */
-    override fun start() {
-
-    }
-
-    override fun pause() {
-        Log.d(TAG, "pause()")
-    }
-
-    override fun getDuration(): Int {
-        return 0
-    }
-
-    override fun getCurrentPosition(): Int {
-        return 0
-    }
-
-    override fun seekTo(pos: Int) {
-    }
-
-    override fun isPlaying(): Boolean {
-        //Log.d(TAG, "isPlaying(): ${mediaPlayer?.isPlaying}")
-        return false
-    }
-
-    override fun getBufferPercentage(): Int {
-        return 0
-    }
-
-    override fun canPause(): Boolean {
-        return false
-    }
-
-    override fun canSeekBackward(): Boolean {
-        return false
-    }
-
-    override fun canSeekForward(): Boolean {
-        return false
-    }
-
-    override fun getAudioSessionId(): Int {
-        TODO("Not yet implemented")
     }
 }

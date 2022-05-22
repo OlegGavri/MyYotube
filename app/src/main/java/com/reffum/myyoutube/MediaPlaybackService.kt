@@ -17,6 +17,7 @@ import android.util.Log
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.WindowManager
+import android.widget.MediaController
 import androidx.annotation.RequiresApi
 
 
@@ -43,6 +44,7 @@ class MediaPlaybackService : Service(),
     // SurfaceView in which output video. If null, video not playing.
     private var surfaceView : SurfaceView? = null
 
+    //TODO: Use mediaPlayer.isPlaying instead this var
     private var isPlaying : Boolean = false
 
     override fun onCreate() {
@@ -138,6 +140,57 @@ class MediaPlaybackService : Service(),
             setOnErrorListener(this@MediaPlaybackService)
             setOnPreparedListener(this@MediaPlaybackService)
             setOnCompletionListener(this@MediaPlaybackService )
+        }
+    }
+
+    /**
+     * Return callback, that can be attached to MediaController widget, if it used.
+     */
+    fun getMediaControllerCallback() : MediaController.MediaPlayerControl {
+        return object : MediaController.MediaPlayerControl {
+            override fun start() {
+                mediaPlayer.start()
+            }
+
+            override fun pause() {
+                mediaPlayer.pause()
+            }
+
+            override fun getDuration(): Int {
+                return mediaPlayer.duration
+            }
+
+            override fun getCurrentPosition(): Int {
+                return mediaPlayer.currentPosition
+            }
+
+            override fun seekTo(pos: Int) {
+                mediaPlayer.seekTo(pos)
+            }
+
+            override fun isPlaying(): Boolean {
+                return mediaPlayer.isPlaying
+            }
+
+            override fun getBufferPercentage(): Int {
+                return 0
+            }
+
+            override fun canPause(): Boolean {
+                return mediaPlayer.isPlaying
+            }
+
+            override fun canSeekBackward(): Boolean {
+                return true
+            }
+
+            override fun canSeekForward(): Boolean {
+                return true
+            }
+
+            override fun getAudioSessionId(): Int {
+                TODO("Not yet implemented")
+            }
         }
     }
 
