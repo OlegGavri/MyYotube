@@ -9,10 +9,7 @@ import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
 import android.view.*
-import android.widget.MediaController
-import android.widget.ProgressBar
-import android.widget.SearchView
-import android.widget.Toast
+import android.widget.*
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -38,6 +35,7 @@ class MainActivity : AppCompatActivity(),
 
     // Activity views
     private lateinit var surfaceView: SurfaceView
+    private lateinit var videoTitle : TextView
     private lateinit var surfaceHolder: SurfaceHolder
     private lateinit var progressBar: ProgressBar
     private lateinit var videoListRecycleView : RecyclerView
@@ -105,6 +103,7 @@ class MainActivity : AppCompatActivity(),
      * @param videoData
      */
     override fun onVideoItemClick(videoData: VideoData) {
+        videoTitle.text = videoData.title
         SearchList.current = videoData
         loadVideo(videoData.id)
     }
@@ -163,6 +162,7 @@ class MainActivity : AppCompatActivity(),
             }
 
         surfaceView = findViewById(R.id.surface_view)
+        videoTitle = findViewById(R.id.video_title)
         surfaceHolder = surfaceView.holder
         progressBar = findViewById(R.id.progress_bar)
         mediaControllerWidget = MediaController(this)
