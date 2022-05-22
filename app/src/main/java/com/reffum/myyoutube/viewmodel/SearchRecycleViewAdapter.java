@@ -1,4 +1,4 @@
-package com.reffum.myyoutube.view;
+package com.reffum.myyoutube.viewmodel;
 
 import android.graphics.Bitmap;
 import android.view.LayoutInflater;

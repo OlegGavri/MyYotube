@@ -19,10 +19,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.reffum.myyoutube.MediaPlaybackService
-import com.reffum.myyoutube.MainActivityViewModel
+import com.reffum.myyoutube.viewmodel.MainActivityViewModel
 import com.reffum.myyoutube.R
 import com.reffum.myyoutube.model.VideoData
 import com.reffum.myyoutube.model.SearchList
+import com.reffum.myyoutube.viewmodel.SearchRecycleViewAdapter
 import kotlinx.coroutines.launch
 
 
