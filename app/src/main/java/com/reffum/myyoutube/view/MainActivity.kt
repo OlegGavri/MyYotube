@@ -12,6 +12,7 @@ import android.view.*
 import android.widget.*
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -123,7 +124,6 @@ class MainActivity : AppCompatActivity(),
                 val searchString = intent.getStringExtra(SearchManager.QUERY)!!
                 progressBar.visibility = View.VISIBLE
                 model.searchYoutubeVideo(searchString)
-                searchRecycleViewAdapter.notifyDataSetChanged()
                 progressBar.visibility = View.GONE
             }
         }
@@ -160,6 +160,13 @@ class MainActivity : AppCompatActivity(),
                 layoutManager = LinearLayoutManager(this@MainActivity)
                 adapter = searchRecycleViewAdapter
             }
+
+        // Observer for SearchList data
+        val searchListObserver = Observer<List<VideoData>> {
+            searchRecycleViewAdapter.notifyDataSetChanged()
+        }
+
+        SearchList.list.observe(this, searchListObserver)
 
         surfaceView = findViewById(R.id.surface_view)
         videoTitle = findViewById(R.id.video_title)
