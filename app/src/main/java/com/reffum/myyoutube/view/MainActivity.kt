@@ -1,5 +1,6 @@
 package com.reffum.myyoutube.view
 
+import android.accounts.AccountManager
 import android.app.SearchManager
 import android.content.ComponentName
 import android.content.Context
@@ -10,6 +11,7 @@ import android.os.IBinder
 import android.util.Log
 import android.view.*
 import android.widget.*
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
@@ -26,7 +28,8 @@ import kotlinx.coroutines.launch
 
 
 class MainActivity : AppCompatActivity(),
-    SearchListAdapter.ItemClickedListener
+    SearchListAdapter.ItemClickedListener,
+    View.OnClickListener
 {
     companion object {
         private const val TAG = "MainActivity"
@@ -37,12 +40,23 @@ class MainActivity : AppCompatActivity(),
     // Activity views
     private lateinit var surfaceView: SurfaceView
     private lateinit var videoTitle : TextView
+    private lateinit var accountButton : Button
     private lateinit var surfaceHolder: SurfaceHolder
     private lateinit var progressBar: ProgressBar
     private lateinit var videoListRecycleView : RecyclerView
     private lateinit var mediaControllerWidget : MediaController
     private val searchRecycleViewAdapter: SearchListAdapter =
         SearchListAdapter(this)
+
+    val action = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult())
+    {activityResult ->
+        Log.d(TAG, "Activity result called")
+        val data = activityResult.data
+        val resultCode = activityResult.resultCode
+
+        Log.d(TAG, "resultCode = $resultCode")
+    }
 
     // Our connection to the Media Service
     private val serviceConnection = object : ServiceConnection {
@@ -129,6 +143,15 @@ class MainActivity : AppCompatActivity(),
         }
     }
 
+    override fun onClick(v: View?) {
+        when(v?.id) {
+            R.id.accounts_button -> {
+                Log.d(TAG, "onClick called")
+                requestAccount()
+            }
+        }
+    }
+
     /**
      * Load youtube video by its id and start play it in MediaPlayer
      * @param videoId Youtube video id
@@ -174,5 +197,22 @@ class MainActivity : AppCompatActivity(),
         progressBar = findViewById(R.id.progress_bar)
         mediaControllerWidget = MediaController(this)
         mediaControllerWidget.setAnchorView(surfaceView)
+
+        accountButton = findViewById(R.id.accounts_button)
+        accountButton.setOnClickListener(this)
+    }
+
+    private fun requestAccount() {
+        val intent = AccountManager.newChooseAccountIntent(
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+        )
+
+        action.launch(intent)
     }
 }
