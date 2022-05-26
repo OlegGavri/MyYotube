@@ -48,16 +48,6 @@ class MainActivity : AppCompatActivity(),
     private val searchRecycleViewAdapter: SearchListAdapter =
         SearchListAdapter(this)
 
-    val action = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult())
-    {activityResult ->
-        Log.d(TAG, "Activity result called")
-        val data = activityResult.data
-        val resultCode = activityResult.resultCode
-
-        Log.d(TAG, "resultCode = $resultCode")
-    }
-
     // Our connection to the Media Service
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
@@ -203,16 +193,16 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun requestAccount() {
-        val intent = AccountManager.newChooseAccountIntent(
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null
-        )
+        val am = AccountManager.get(this)
+        val accounts = am.getAccountsByType("com.android.email")
+        //val accounts = am.accounts
 
-        action.launch(intent)
+        Log.d(TAG, "Find ${accounts.size} accounts")
+
+        for (a in accounts) {
+            Log.d(TAG, "ACCOUNT: ${a.name} ${a.type}")
+        }
+
+
     }
 }
