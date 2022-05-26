@@ -11,6 +11,7 @@ TODO:
 - likes, shared etc
 - only audio mode
 - Starting screen
+- Add user possibility to create new account.
 
 
 BUGS:
