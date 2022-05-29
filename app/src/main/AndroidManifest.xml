@@ -16,7 +16,7 @@
         android:label="MyYouTube"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AppCompat">
+        android:theme="@style/Theme.AppCompat.Light">
         <service
             android:name=".MediaPlaybackService"
             android:enabled="true"
@@ -26,7 +26,7 @@
             android:name=".view.MainActivity"
             android:label="YouTube Player"
             android:launchMode="singleTop"
-            android:exported="false">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.intent.action.SEARCH" />
