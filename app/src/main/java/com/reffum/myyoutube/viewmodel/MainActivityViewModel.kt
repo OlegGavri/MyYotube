@@ -31,7 +31,7 @@ class MainActivityViewModel : ViewModel() {
         withContext(Dispatchers.IO) {
             videoList = Youtube.searchYoutubeVideo(searchString)
         }
-        SearchList.list = videoList
+        SearchList.list.value = videoList
         return videoList
     }
 

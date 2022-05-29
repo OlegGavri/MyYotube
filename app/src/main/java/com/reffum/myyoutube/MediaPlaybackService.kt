@@ -40,6 +40,7 @@ class MediaPlaybackService : Service(),
 
     private var isServiceStarted : Boolean = false
     private lateinit var mediaPlayer : MediaPlayer
+    private lateinit var notification : Notification
 
     // SurfaceView in which output video. If null, video not playing.
     private var surfaceView : SurfaceView? = null
@@ -67,16 +68,14 @@ class MediaPlaybackService : Service(),
             isServiceStarted = true
 
             createNotificationChannel(channelId, "MediaPlaybackService")
-
-            val notification = Notification.Builder(this, channelId).apply {
-                setSmallIcon(R.drawable.ic_launcher_foreground)
-                setContentTitle("My music")
-                setContentText("My text")
-            }.build()
+            notification = Notification.Builder(this, channelId)
+                .apply {
+                    setSmallIcon(R.drawable.ic_launcher_foreground)
+                    setContentTitle("My music")
+                    setContentText("My text")
+                }.build()
 
             Log.d(LOG_TAG, "Start foreground service")
-
-            startForeground(NOTIFICATOIN_ID, notification)
         }
         return super.onStartCommand(intent, flags, startId)
     }
@@ -146,10 +145,12 @@ class MediaPlaybackService : Service(),
         return object : MediaController.MediaPlayerControl {
             override fun start() {
                 mediaPlayer.start()
+                startForeground(NOTIFICATOIN_ID, notification)
             }
 
             override fun pause() {
                 mediaPlayer.pause()
+                stopForeground(true)
             }
 
             override fun getDuration(): Int {
@@ -202,6 +203,7 @@ class MediaPlaybackService : Service(),
         Log.d(LOG_TAG, "onPrepared(). MediaPlayer ready to play")
         adjustSurfaceViewSize()
         mediaPlayer.start()
+        startForeground(NOTIFICATOIN_ID, notification)
     }
 
     override fun onError(mp: MediaPlayer?, what: Int, extra: Int): Boolean {

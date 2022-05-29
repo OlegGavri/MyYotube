@@ -29,6 +29,7 @@ class SearchListAdapter(itemClickListener : ItemClickedListener) :
         var itemImage : ImageView = itemView.findViewById(R.id.item_image)
 
         init {
+            // Handle click on list element
             itemView.setOnClickListener {
                 itemClickListener.onVideoItemClick(videoData!!)
             }
@@ -54,11 +55,11 @@ class SearchListAdapter(itemClickListener : ItemClickedListener) :
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.videoData = SearchList.list?.get(position) ?: null
+        holder.videoData = SearchList.list.value?.get(position)
     }
 
     override fun getItemCount(): Int {
-        return SearchList.list?.size ?: 0
+        return SearchList.list.value?.size ?: 0
     }
 
     /**
