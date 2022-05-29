@@ -19,9 +19,9 @@ class App : Application() {
         applicationScope.launch {
             try{
                 withContext(Dispatchers.IO) { initLibraries() }
-                Log.d(Companion.TAG, "Youtube-dl initialization success")
+                Log.d(TAG, "Youtube-dl initialization success")
             } catch (e : Throwable) {
-                Log.e(Companion.TAG, "Youtube-dl initialization error")
+                Log.e(TAG, "Youtube-dl initialization error")
                 e.printStackTrace()
             }
         }
