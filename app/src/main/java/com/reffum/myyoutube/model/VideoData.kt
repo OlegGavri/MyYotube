@@ -9,10 +9,10 @@ class VideoData(
         val title: String,
 
         // Number of views
-        val views: String,
+        var views: Int,
 
         //Release date
-        val date : String,
+        val date: String,
 
         // YouTube video ID
         val id: String,
@@ -21,5 +21,5 @@ class VideoData(
         val image: Bitmap,
 
         // Direct url
-        var directUrl : String? = null
+        var directUrl: String? = null
         )

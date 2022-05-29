@@ -17,6 +17,11 @@ import java.security.GeneralSecurityException
  */
 object Youtube {
 
+    /* Exception types */
+    class ResponseException(msg : String) : Exception() {
+
+    }
+
     // Google Youtube API
     private val mYouTube : YouTube = getYoutubeService()
 
@@ -52,7 +57,7 @@ object Youtube {
 
             val videoData = VideoData(
                 title,
-                "Unknown",
+                0,
                 date.toString(),
                 videoId,
                 bitmap
@@ -60,7 +65,33 @@ object Youtube {
 
             videoList.add(videoData)
         }
+
+        // Add view counts value for each video
+        val ids = List(videoList.size) {
+            videoList[it].id
+        }
+
+        val views = getViews(ids)
+
+        for(i in videoList.indices) {
+            videoList[i].views = views[i]
+        }
+
         return videoList
+    }
+
+    @Throws(ResponseException::class)
+    private fun getViews(ids : List<String>): List<Int> {
+        val request = mYouTube.videos().list(listOf("statistics"))
+        val response = request.setId(ids).execute()
+
+        if(response.items.size != ids.size) {
+            throw ResponseException("Response size is not equal request size")
+        }
+
+        return List(ids.size) {
+            response.items[it].statistics.viewCount.toInt()
+        }
     }
 
 
