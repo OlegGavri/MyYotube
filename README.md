@@ -1,6 +1,5 @@
 
 TODO:
-- improve description(pretty date and time)
 - Add controls in notification
   Play video in separate Activity or Fragment
 - Load more video in search list  
@@ -14,6 +13,8 @@ TODO:
 - Starting screen
 - Handle exceptions
 - Step to next video, after this complete
+- Screen rotation
+- Last search text
 
 When understand:  
 - account
@@ -21,3 +22,4 @@ When understand:
 BUGS:
 - fail if videoID referenced to unavailable stream
 - video controls(pause glitch)
+- Application not responding(ANR)

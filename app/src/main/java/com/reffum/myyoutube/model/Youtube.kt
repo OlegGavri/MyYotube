@@ -5,12 +5,13 @@ import android.graphics.BitmapFactory
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport
 import com.google.api.client.http.HttpRequest
 import com.google.api.client.json.gson.GsonFactory
-import com.google.api.client.util.DateTime
 import com.google.api.services.youtube.YouTube
 import com.google.api.services.youtube.model.SearchListResponse
 import java.io.IOException
 import java.net.URL
 import java.security.GeneralSecurityException
+import java.text.SimpleDateFormat
+import java.util.*
 
 /**
  * Methods for exchange data with Youtube.
@@ -47,7 +48,7 @@ object Youtube {
 
             val videoId : String = id.videoId
             val title : String = snippet.title
-            val date : DateTime = snippet.publishedAt
+            val date = Date(snippet.publishedAt.value)
             val imageUrl : String = thumbnails.default.url
 
             // Load image
@@ -58,7 +59,7 @@ object Youtube {
             val videoData = VideoData(
                 title,
                 0,
-                date.toString(),
+                formatDate(date),
                 videoId,
                 bitmap
             )
@@ -80,6 +81,7 @@ object Youtube {
         return videoList
     }
 
+    // Return views count for given video
     @Throws(ResponseException::class)
     private fun getViews(ids : List<String>): List<Int> {
         val request = mYouTube.videos().list(listOf("statistics"))
@@ -106,6 +108,10 @@ object Youtube {
         }.setApplicationName(Constants.APPLICATION_NAME)
 
         return builder.build()
+    }
+
+    private fun formatDate(date: Date): String {
+        return SimpleDateFormat("yyyy-MM-dd HH:mm").format(date)
     }
 
     private const val API_KEY = "AIzaSyBGMvsvE5t8D8p213pxuNglIQEfO--1wXU"

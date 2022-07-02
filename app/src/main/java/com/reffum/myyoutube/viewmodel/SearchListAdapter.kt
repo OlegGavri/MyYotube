@@ -39,7 +39,7 @@ class SearchListAdapter(itemClickListener : ItemClickedListener) :
             set(value) {
                 field = value
                 itemTitle.text = value?.title
-                itemViews.text = prettyCount(value?.views!!)
+                itemViews.text = prettyCount(value?.views!!) + " views"
                 itemImage.setImageBitmap(value?.image)
                 itemDate.text = value?.date
             }
