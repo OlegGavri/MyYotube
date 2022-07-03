@@ -4,6 +4,7 @@ TODO:
   Play video in separate Activity or Fragment
 - Load more video in search list  
 - Restore last video
+- Restore last search list
 - Save video and it position
 - save audio
 - background play and controls in notification

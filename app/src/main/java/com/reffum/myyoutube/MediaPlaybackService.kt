@@ -77,6 +77,7 @@ class MediaPlaybackService : Service(),
 
             Log.d(LOG_TAG, "Start foreground service")
         }
+        startForeground(NOTIFICATOIN_ID, notification)
         return super.onStartCommand(intent, flags, startId)
     }
 
@@ -145,7 +146,6 @@ class MediaPlaybackService : Service(),
         return object : MediaController.MediaPlayerControl {
             override fun start() {
                 mediaPlayer.start()
-                startForeground(NOTIFICATOIN_ID, notification)
             }
 
             override fun pause() {
@@ -203,7 +203,6 @@ class MediaPlaybackService : Service(),
         Log.d(LOG_TAG, "onPrepared(). MediaPlayer ready to play")
         adjustSurfaceViewSize()
         mediaPlayer.start()
-        startForeground(NOTIFICATOIN_ID, notification)
     }
 
     override fun onError(mp: MediaPlayer?, what: Int, extra: Int): Boolean {
